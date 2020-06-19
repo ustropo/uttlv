@@ -12,7 +12,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/ustropo/uttlv',
-    download_url='https://github.com/ustropo/uttlv/archive/uttlv_0_3_0.tar.gz',
+    download_url='https://github.com/ustropo/uttlv/archive/v0.3.0.tar.gz',
     author='Fernando C. de Souza',
     author_email='cleberdsouza@gmail.com',
     license='MIT',
