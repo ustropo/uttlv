@@ -1,0 +1,115 @@
+from uttlv import *
+import unittest
+
+config = {
+    0x01: {'type': 'int', 'name': 'NUM_POINTS'},
+    0x02: {'type': 'int', 'name': 'IDLE_PERIOD'},
+    0x03: {'type': 'str', 'name': 'NAME'},
+    0x04: {'type': 'str', 'name': 'CITY'},
+    0x05: {'type': 'bytes', 'name': 'VERSION'},
+    0x06: {'type': 'bytes', 'name': 'DATA'},
+    0x07: {'type': 'TLV', 'name': 'RELATED'},
+    0x08: {'type': 'TLV', 'name': 'COMMENT'}
+}
+
+
+class BasicTests(unittest.TestCase):
+    """Class to execute some basic tests over package."""
+    
+    @classmethod
+    def setUpClass(cls):
+        TLV.set_tag_map(config)
+
+    def setUp(self):
+        self.tag = TLV()
+
+    def test_int_one(self):
+        """Test if a TLV object is corrected set to an array """
+        self.tag[0x01] = 10
+        # Create an array
+        v = list(self.tag.to_byte_array())
+        exp = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A]
+        # Check value
+        self.assertListEqual(exp, v, 'Value is not what expected.')
+
+    def test_int_nested(self):
+        """Test more than one int tag in an array."""
+        self.tag[0x01] = 10
+        self.tag[0x02] = 255
+        # Create array 
+        v = list(self.tag.to_byte_array())
+        exp = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0xFF]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_str_one(self):
+        """Test string tag"""
+        self.tag[0x03] = 'teste'
+        # Create array
+        v = list(self.tag.to_byte_array())
+        exp = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_str_nested(self):
+        """Test string tag"""
+        self.tag[0x03] = 'teste'
+        self.tag[0x04] = 'maisum'
+        # Create array
+        v = list(self.tag.to_byte_array())
+        exp = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65, 0x04, 0x00, 0x06, 0x6d, 0x61, 0x69, 0x73, 0x75, 0x6d]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_bytes_one(self):
+        """Test array of bytes tag"""
+        self.tag[0x05] = bytes([1, 2, 3])
+        # Create array
+        v = list(self.tag.to_byte_array())
+        exp = [0x05, 0x00, 0x03, 0x01, 0x02, 0x03]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_bytes_nested(self):
+        """Test array of bytes tag"""
+        self.tag[0x05] = bytes([1, 2, 3])
+        self.tag[0x06] = bytes([5, 6, 7])
+        # Create array
+        v = list(self.tag.to_byte_array())
+        exp = [0x05, 0x00, 0x03, 0x01, 0x02, 0x03, 0x06, 0x00, 0x03, 0x05, 0x06, 0x07]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_tlv_one(self):
+        """Test a TLV tag object"""
+        t = TLV()
+        t[0x01] = 25
+        self.tag[0x07] = t
+        # Create array
+        v = list(self.tag.to_byte_array())
+        exp = [0x07, 0x00, 0x07, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x19]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_tlv_nested(self):
+        """Test multiple tlv tag object"""
+        t1 = TLV()
+        t1[0x02] = 32
+        t2 = TLV()
+        t2[0x03] = 'teste'
+        self.tag[0x07] = t1
+        self.tag[0x08] = t2
+        # Create array
+        v = list(self.tag.to_byte_array())
+        exp = [0x07, 0x00, 0x07, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x20, 0x08, 0x00, 0x08, 0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_empty(self):
+        """Test empty TLV object"""
+        t = EmptyTLV(0x08)
+        # Create array
+        v = list(t.to_byte_array())
+        exp = [0x08, 0x00, 0x00]
+        # Check value
+        self.assertListEqual(exp, v, 'Value not what expected')
