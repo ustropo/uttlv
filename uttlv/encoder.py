@@ -13,7 +13,7 @@ class DefaultEncoder(object):
         try:
             return obj.tree(offset + obj.indent, use_names)
         except:
-            raise TypeError('Invalid type')
+            pass
         return str(obj)
 
     def parse(self, obj, cls=None):

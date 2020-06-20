@@ -113,3 +113,10 @@ class BasicTests(unittest.TestCase):
         exp = [0x08, 0x00, 0x00]
         # Check value
         self.assertListEqual(exp, v, 'Value not what expected')
+
+    def test_key_name(self):
+        '''Test access by key name.'''
+        t = TLV()
+        t['NUM_POINTS'] = 10
+        
+        self.assertEqual(t[1], 10)
