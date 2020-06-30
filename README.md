@@ -1,4 +1,4 @@
-# TLV Python Parser - Version 0.3.1
+# TLV Python Parser - Version 0.4.0
 
 A **Tag-Length-Value** (also known as **Type-Length-Value**) is an encoding scheme used for many protocols.
 
@@ -144,7 +144,14 @@ And also can print it with all tag names instead of values:
  ## NUM_POINTS: 10
 ```
 
+You can access also the tags directly:
+
+```python
+ t = TLV()
+ t['NUM_POINTS'] = 10
+ print(t.NUM_POINTS)
+```
+
 ## To-Do Features
 
-* Accept different _ending_ (for now, only _big endian_ is accepted)
 * Different _tag_ length simultaneously
