@@ -139,3 +139,4 @@ cython_debug/
 
 # VS-Code
 .vscode/
+*.old

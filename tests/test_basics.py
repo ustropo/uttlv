@@ -120,3 +120,11 @@ class BasicTests(unittest.TestCase):
         t['NUM_POINTS'] = 10
         
         self.assertEqual(t[1], 10)
+
+    def test_attribute(self):
+        '''Test access by attribute name.'''
+        t = TLV()
+        t['NUM_POINTS'] = 10
+
+        self.assertEqual(t.NUM_POINTS, 10)
+

@@ -5,7 +5,7 @@ from binascii import hexlify
 from enum import IntEnum
 
 
-class TLV(dict):
+class TLV:
     '''
     Class that represents a TLV (tag-length-value) object.
 
@@ -37,17 +37,19 @@ class TLV(dict):
         self.indent = 4             # How many spaces to use in tree() method
         self.tag_size = 1           # How many bytes a tag will contain in the array
         self.len_size = 2           # How many bytes the length info will occupy in the final array
-        self.tag_map = {}
+        self.endian = 'big'
+        self._items = {}
         
     def __setitem__(self, key, value):
         real_key = self.__getkey__(key)
         self.check_key(real_key)
         self.check_value(value)
-        return super().__setitem__(real_key, value)
+        self._items[real_key] = value
+        return None
 
     def __getitem__(self, key):
         real_key = self.__getkey__(key)
-        return super().__getitem__(real_key)
+        return self._items[real_key]
 
     def __getkey__(self, key):
         '''Get real tag from a given string'''
@@ -60,7 +62,18 @@ class TLV(dict):
                     return k
             raise AttributeError(f'Key {key} not found')
         # Invalid key type
-        raise KeyError(str(key))
+        raise KeyError(f'Invalid key {str(key)}')
+
+    def __getattr__(self, name):
+        return self.__getitem__(name)
+
+    def __eq__(self, other):
+        b = self.to_byte_array()
+        a = other.to_byte_array()
+        return a == b
+
+    def __hash__(self):
+        return hash(self.to_byte_array())
 
     @classmethod
     def set_tag_map(cls, map: Dict) -> None:
@@ -102,23 +115,23 @@ class TLV(dict):
     def to_byte_array(self) -> bytes:
         '''Translate all keys and values into an array of bytes.'''
         values = bytes()
-        for k, v in self.items():
+        for k, v in self._items.items():
             frm = self.allowed_types.get(v.__class__.__name__)
             value = frm().default(v)
             # Create array
-            values += int(k).to_bytes(self.tag_size, byteorder='big') 
-            values += len(value).to_bytes(self.len_size, byteorder='big') 
+            values += int(k).to_bytes(self.tag_size, byteorder=self.endian) 
+            values += len(value).to_bytes(self.len_size, byteorder=self.endian) 
             values += value
         return values
 
     def tree(self, offset: int = 0, use_names: bool = False) -> str:
         '''Print a tree view of the object.'''
         s = '' if offset == 0 else '\r\n'
-        for k, v in self.items():
+        for k, v in self._items.items():
             frm = self.allowed_types.get(v.__class__.__name__)
             value = frm().to_string(v, offset, use_names)
             # Create line
-            tag = str(hexlify(int(k).to_bytes(self.tag_size, byteorder='big')), 'ascii')
+            tag = str(hexlify(int(k).to_bytes(self.tag_size, byteorder=self.endian)), 'ascii')
             if use_names:
                 map = TLV.tag_map.get(k, None)
                 if map:
@@ -142,10 +155,10 @@ class TLV(dict):
         aux = data
         while len(aux) > min_size:
             # Tag value
-            t = int.from_bytes(aux[:self.tag_size], byteorder='big')
+            t = int.from_bytes(aux[:self.tag_size], byteorder=self.endian)
             # Len value
             aux = aux[self.tag_size:]
-            l = int.from_bytes(aux[:self.len_size], byteorder='big')
+            l = int.from_bytes(aux[:self.len_size], byteorder=self.endian)
             # Value
             aux = aux[self.len_size:]
             v = aux[:l]
