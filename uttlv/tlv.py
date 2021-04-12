@@ -117,7 +117,7 @@ class TLV:
         return True
 
     def encode_length(self, value):
-        required_len_size = math.ceil(len(value).bit_length() / 8)  # math.ceil(math.log2(len(value)) / 8)
+        required_len_size = math.ceil(len(value).bit_length() / 8)
         assert required_len_size < 16, f'Max allowed value length is {2**(8*15)-1} bytes, given value is {len(value)} bytes'
         if not self.len_size:
             if len(value) < 128:
