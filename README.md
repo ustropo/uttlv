@@ -152,6 +152,3 @@ You can access also the tags directly:
  print(t.NUM_POINTS)
 ```
 
-## To-Do Features
-
-* Different _tag_ length simultaneously
