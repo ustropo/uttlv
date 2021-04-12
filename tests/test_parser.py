@@ -169,7 +169,7 @@ class TestParser(unittest.TestCase):
 
     def test_auto_len_single_long_str(self):
         '''Test single str array parser.'''
-        v = b'teste' * (2 ** 16)
+        v = b'teste' * (2 ** 15 + 5)
         arr = b'\x03' + self.vtlv.encode_length(v) + v
         self.vtlv.parse_array(arr)
-        self.assertEqual(v.decode('ascii'), self.vtlv[0x03], f'Expected "teste" repeating {2**16} times')
+        self.assertEqual(v.decode('ascii'), self.vtlv[0x03], f'Expected "teste" repeating {2**15 + 5} times')
