@@ -3,6 +3,7 @@ from binascii import hexlify
 
 
 class DefaultEncoder(object):
+
     def default(self, obj):
         try:
             return obj.to_byte_array()
@@ -18,15 +19,15 @@ class DefaultEncoder(object):
 
     def parse(self, obj, cls=None):
         try:
-            o = cls()
-            o.parse_array(obj)
-            return o
+            cls.parse_array(obj)
+            return cls
         except:
             pass
         return obj
 
 
 class IntEncoder(DefaultEncoder):
+
     def default(self, obj):
         if isinstance(obj, int):
             return obj.to_bytes(4, byteorder='big')
@@ -36,7 +37,8 @@ class IntEncoder(DefaultEncoder):
         return int.from_bytes(obj, byteorder='big')
 
 
-class StrEncoder(DefaultEncoder):
+class AsciiEncoder(DefaultEncoder):
+
     def default(self, obj):
         if isinstance(obj, str):
             return obj.encode('ascii')
@@ -47,6 +49,7 @@ class StrEncoder(DefaultEncoder):
 
 
 class BytesEncoder(DefaultEncoder):
+
     def default(self, obj):
         if isinstance(obj, bytes):
             return obj
@@ -55,5 +58,38 @@ class BytesEncoder(DefaultEncoder):
     def to_string(self, obj, offset=0, use_names=False):
         return str(hexlify(obj), 'ascii')
 
-    def parse(self, obj, cls = None):
+    def parse(self, obj, cls=None):
         return obj
+
+
+class Utf8Encoder(DefaultEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, str):
+            return obj.encode('utf8')
+        return super().default(obj)
+
+    def parse(self, obj, cls=None):
+        return obj.decode('utf8')
+
+
+class Utf16Encoder(DefaultEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, str):
+            return obj.encode('utf16')
+        return super().default(obj)
+
+    def parse(self, obj, cls=None):
+        return obj.decode('utf16')
+
+
+class Utf32Encoder(DefaultEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, str):
+            return obj.encode('utf32')
+        return super().default(obj)
+
+    def parse(self, obj, cls=None):
+        return obj.decode('utf32')

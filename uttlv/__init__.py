@@ -1,4 +1,4 @@
-from .encoder import DefaultEncoder, IntEncoder, BytesEncoder, StrEncoder
+from .encoder import DefaultEncoder, IntEncoder, BytesEncoder, AsciiEncoder
 from .tlv import TLV, EmptyTLV
 
 # Package version
