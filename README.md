@@ -1,4 +1,4 @@
-# TLV Python Parser - Version 0.4.0
+# TLV Python Parser - Version 0.5.0
 
 A **Tag-Length-Value** (also known as **Type-Length-Value**) is an encoding scheme used for many protocols.
 
