@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Dict, Any
-from encoder import *
+from .encoder import *
 from binascii import hexlify
 import enum
 import math
@@ -78,6 +78,9 @@ class TLV:
 
     def __hash__(self):
         return hash(self.to_byte_array())
+
+    def __iter__(self):
+        return TLVIterator(self)
 
     @classmethod
     def set_tag_map(cls, map: Dict) -> None:
@@ -230,6 +233,18 @@ class EmptyTLV(TLV):
                 tag = tag if not name else name
         s += f'{" " * offset}{tag}\r\n'
         return s
+
+
+class TLVIterator:
+    '''Iterator class'''
+    def __init__(self, tlv):
+        self._tlv = tlv
+        self._it = iter(self._tlv._items)
+
+    def __next__(self):
+        ''''Returns the next value from items dictionary '''
+        return next(self._it)
+
 
 
 ALLOWED_TYPES = {
