@@ -3,14 +3,15 @@ import unittest
 
 
 config = {
-    0x01: {'type': 'int', 'name': 'NUM_POINTS'},
-    0x02: {'type': 'int', 'name': 'IDLE_PERIOD'},
-    0x03: {'type': 'str', 'name': 'NAME'},
-    0x04: {'type': 'str', 'name': 'CITY'},
-    0x05: {'type': 'bytes', 'name': 'VERSION'},
-    0x06: {'type': 'bytes', 'name': 'DATA'},
-    0x07: {'type': 'TLV', 'name': 'RELATED'},
-    0x08: {'type': 'TLV', 'name': 'COMMENT'}
+    0x01: {TLV.Config.Type: int, TLV.Config.Name: 'NUM_POINTS'},
+    0x02: {TLV.Config.Type: int, TLV.Config.Name: 'IDLE_PERIOD'},
+    0x03: {TLV.Config.Type: str, TLV.Config.Name: 'NAME'},
+    0x04: {TLV.Config.Type: str, TLV.Config.Name: 'CITY'},
+    0x05: {TLV.Config.Type: bytes, TLV.Config.Name: 'VERSION'},
+    0x06: {TLV.Config.Type: bytes, TLV.Config.Name: 'DATA'},
+    0x07: {TLV.Config.Type: TLV, TLV.Config.Name: 'RELATED'},
+    0x08: {TLV.Config.Type: TLV, TLV.Config.Name: 'COMMENT'},
+    0x09: {TLV.Config.Type: TLV, TLV.Config.Name: 'Empty'}
 }
 
 
@@ -41,7 +42,8 @@ class TreeTests(unittest.TestCase):
         t1[2] = 30
         t[7] = t1
         expected = '01: 10\r\n02: 20\r\n03: test\r\n07: \r\n    01: 10\r\n    02: 30\r\n\r\n'
-        self.assertEqual(expected, t.tree())
+        actual = t.tree()
+        self.assertEqual(expected, actual)
 
     def test_tree_with_names(self):
         t = TLV()
@@ -53,4 +55,5 @@ class TreeTests(unittest.TestCase):
         t1[2] = 30
         t[7] = t1
         expected = 'NUM_POINTS: 10\r\nIDLE_PERIOD: 20\r\nNAME: test\r\nRELATED: \r\n    NUM_POINTS: 10\r\n    IDLE_PERIOD: 30\r\n\r\n'
-        self.assertEqual(expected, t.tree(use_names=True))
+        actual = t.tree(use_names=True)
+        self.assertEqual(expected, actual)

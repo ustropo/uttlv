@@ -96,7 +96,7 @@ class TLV:
                 raise TypeError('Invalid tag config type')
             t = v.get(TLV.Config.Type, '')
             if t not in al_types:
-                raise AttributeError(f'Invalid tag type {t} for {k}')
+                raise AttributeError(f'Invalid tag type {t} for {k} -> {v}')
         cls.tag_map = map
     
     def check_key(self, key: int) -> bool:
@@ -119,9 +119,12 @@ class TLV:
             raise TypeError('Invalid value type format.')
         return True
 
-    def encode_length(self, value):
+    def encode_length(self, value: bytes) -> bytes:
+        '''Translate the length of value into an array.'''
         required_len_size = math.ceil(len(value).bit_length() / 8)
-        assert required_len_size < 16, f'Max allowed value length is {2**(8*15)-1} bytes, given value is {len(value)} bytes'
+        if required_len_size > 16:
+            raise AttributeError(f'Max allowed value length is {2**(8*15)-1} bytes, given value is {len(value)} bytes')
+
         if not self.len_size:
             if len(value) < 128:
                 return len(value).to_bytes(1, byteorder=self.endian)
@@ -131,7 +134,9 @@ class TLV:
                 len(value).to_bytes(required_len_size, byteorder=self.endian)
             )
 
-        assert self.len_size >= required_len_size, f'{value} takes up {required_len_size} bytes, but len_size was defined as {self.len_size}'
+        if self.len_size < required_len_size:
+            raise ValueError(f'{value} takes up {required_len_size} bytes, but len_size was defined as {self.len_size}')
+
         return len(value).to_bytes(self.len_size, byteorder=self.endian)
         
     def to_byte_array(self) -> bytes:
@@ -157,13 +162,13 @@ class TLV:
             if use_names:
                 map = TLV.tag_map.get(k, None)
                 if map:
-                    name = map.get('name', None) 
+                    name = map.get(TLV.Config.Name, None) 
                     if name:
                         tag = name
             s += f'{" " * offset}{tag}: {value}\r\n'
         return s
 
-    def decode_len_size(self, data):
+    def decode_len_size(self, data: bytes) -> int:
         if data[0] < 0x80:
             return 1
         return data[0] - 0x80 + 1
@@ -210,7 +215,7 @@ class TLV:
 
 class EmptyTLV(TLV):
     '''Empty TLV'''
-    def __init__(self, tag, **kwargs):
+    def __init__(self, tag: int, **kwargs):
         super().__init__(**kwargs)
         self.tag = tag
 
@@ -237,7 +242,7 @@ class EmptyTLV(TLV):
 
 class TLVIterator:
     '''Iterator class'''
-    def __init__(self, tlv):
+    def __init__(self, tlv: TLV):
         self._tlv = tlv
         self._it = iter(self._tlv._items)
 
