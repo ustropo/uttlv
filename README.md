@@ -1,8 +1,10 @@
-# TLV Python Parser - Version 0.4.0
+# TLV Python Parser - Version 0.5.0
 
 A **Tag-Length-Value** (also known as **Type-Length-Value**) is an encoding scheme used for many protocols.
 
-The _tag_ and _length_ are fixed in size (varying from 1 to 4 bytes) and the _value_ field is of variable size.
+The _tag_ is fixed in size (can be set from 1 to 4 bytes).
+The _length_ is automatically determined by how many bytes it would take to represent the size of the _value_ by default, 
+but could be set to a fixed size (from 1 to 4 bytes). The _value_ field is of variable size.
 
 The fields are:
 
@@ -111,14 +113,15 @@ tag:
 
 ```python
   config = {
-    0x01: {'type': 'int', 'name': 'NUM_POINTS'},
-    0x02: {'type': 'int', 'name': 'IDLE_PERIOD'},
-    0x03: {'type': 'str', 'name': 'NAME'},
-    0x04: {'type': 'str', 'name': 'CITY'},
-    0x05: {'type': 'bytes', 'name': 'VERSION'},
-    0x06: {'type': 'bytes', 'name': 'DATA'},
-    0x07: {'type': 'TLV', 'name': 'RELATED'},
-    0x08: {'type': 'TLV', 'name': 'COMMENT'}
+      0x01: {TLV.Config.Type: int, TLV.Config.Name: 'NUM_POINTS'},
+      0x02: {TLV.Config.Type: int, TLV.Config.Name: 'IDLE_PERIOD'},
+      0x03: {TLV.Config.Type: str, TLV.Config.Name: 'NAME'},
+      0x04: {TLV.Config.Type: str, TLV.Config.Name: 'CITY'},
+      0x05: {TLV.Config.Type: bytes, TLV.Config.Name: 'VERSION'},
+      0x06: {TLV.Config.Type: bytes, TLV.Config.Name: 'DATA'},
+      0x07: {TLV.Config.Type: TLV, TLV.Config.Name: 'RELATED'},
+      0x08: {TLV.Config.Type: TLV, TLV.Config.Name: 'COMMENT'},
+      0x09: {TLV.Config.Type: TLV, TLV.Config.Name: 'Empty'}
   }
 
   # Set map
@@ -152,6 +155,18 @@ You can access also the tags directly:
  print(t.NUM_POINTS)
 ```
 
-## To-Do Features
+By default, a field defined as type str in the tag map would be encoded or decoded as utf-8. The encoder can be replaced
+to use utf16, utf32 or ascii by setting it in 
 
-* Different _tag_ length simultaneously
+```python
+ uttlv.tlv.ALLOWED_TYPES[str] = uttlv.tlv.encoder.Utf16Encoder
+```
+or 
+```python
+ uttlv.tlv.ALLOWED_TYPES[str] = uttlv.tlv.encoder.Utf32Encoder
+```
+or 
+```python
+ uttlv.tlv.ALLOWED_TYPES[str] = uttlv.tlv.encoder.AsciiEncoder
+```
+respectively.
