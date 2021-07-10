@@ -1,4 +1,4 @@
-# TLV Python Parser - Version 0.5.0
+# TLV Python Parser - Version 0.6.0
 
 A **Tag-Length-Value** (also known as **Type-Length-Value**) is an encoding scheme used for many protocols.
 
@@ -170,3 +170,15 @@ or
  uttlv.tlv.ALLOWED_TYPES[str] = uttlv.tlv.encoder.AsciiEncoder
 ```
 respectively.
+
+## Iterator
+
+You can iterate through the available tags inside a TLV object by using `iter()`:
+
+```
+t = TLV()
+t.parse_array(bytes(command_data))
+
+for command in t:
+  pass
+```

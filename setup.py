@@ -6,12 +6,12 @@ with open("README.md", "r") as fh:
 
 setup(
     name='uttlv',
-    version='0.5.0',
+    version='0.6.0',
     description='Python library for TLV objects',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/ustropo/uttlv',
-    download_url='https://github.com/ustropo/uttlv/archive/v0.5.0.tar.gz',
+    download_url='https://github.com/ustropo/uttlv/archive/v0.6.0.tar.gz',
     author='Fernando C. de Souza',
     author_email='cleberdsouza@gmail.com',
     license='MIT',
