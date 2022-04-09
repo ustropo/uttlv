@@ -26,7 +26,7 @@ class TLV:
                 of the value.
     '''
     Config = enum.Enum('Config', 'Type Name')
-    tag_map = {}
+    global_tag_map = {}
 
     def __init__(self, indent=4, tag_size=1, len_size=None, endian='big'):
         '''
@@ -43,6 +43,7 @@ class TLV:
         self.len_size = len_size
         self.endian = endian
         self._items = {}
+        self.tag_map = TLV.global_tag_map
 
     def __setitem__(self, key, value):
         real_key = self.__getkey__(key)
@@ -60,7 +61,7 @@ class TLV:
         if isinstance(key, int):
             return key
         if isinstance(key, str):
-            for k, v in TLV.tag_map.items():
+            for k, v in self.tag_map.items():
                 name = v.get(TLV.Config.Name)
                 if name and name == key:
                     return k
@@ -97,7 +98,15 @@ class TLV:
             t = v.get(TLV.Config.Type, '')
             if t not in al_types:
                 raise AttributeError(f'Invalid tag type {t} for {k} -> {v}')
-        cls.tag_map = map
+        cls._tag_map = map
+
+    def set_local_tag_map(self, map: Dict) -> None:
+        '''Set a class-instance-specific tag map.
+
+        :args:
+            map: tag map to set class instance to.
+        '''
+        self.tag_map = map
 
     def check_key(self, key: int) -> bool:
         '''Check if key is valid is inside limits.
@@ -200,7 +209,7 @@ class TLV:
             # Next value
             aux = aux[l:]
             # Check if tag has any parser
-            tg_cfg = TLV.tag_map.get(t)
+            tg_cfg = self.tag_map.get(t)
             if tg_cfg is not None:
                 tg_type = tg_cfg.get(TLV.Config.Type)
                 if tg_type is not None:
