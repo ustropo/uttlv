@@ -83,6 +83,9 @@ class TLV:
     def __iter__(self):
         return TLVIterator(self)
 
+    def _new_equivalent_tlv(self) -> TLV:
+        return TLV(self.indent, self.tag_size, self.len_size, self.endian)
+
     @classmethod
     def set_tag_map(cls, map: Dict) -> None:
         '''Set a map for tag.
