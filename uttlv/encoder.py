@@ -93,3 +93,16 @@ class Utf32Encoder(DefaultEncoder):
 
     def parse(self, obj, cls=None):
         return obj.decode('utf32')
+
+
+class NestedEncoder(DefaultEncoder):
+
+    def __init__(self, tag_map):
+        self.tag_map = tag_map
+
+    def parse(self, obj, cls=None):
+        # TODO need to have a proper check, this fails because TLV would be a circular import
+        #if type(cls) is TLV:
+        cls.set_local_tag_map(self.tag_map)
+
+        return super().parse(obj, cls)
