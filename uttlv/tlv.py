@@ -43,7 +43,7 @@ class TLV:
         self.len_size = len_size
         self.endian = endian
         self._items = {}
-        
+
     def __setitem__(self, key, value):
         real_key = self.__getkey__(key)
         self.check_key(real_key)
@@ -98,7 +98,7 @@ class TLV:
             if t not in al_types:
                 raise AttributeError(f'Invalid tag type {t} for {k} -> {v}')
         cls.tag_map = map
-    
+
     def check_key(self, key: int) -> bool:
         '''Check if key is valid is inside limits.
         
@@ -138,7 +138,7 @@ class TLV:
             raise ValueError(f'{value} takes up {required_len_size} bytes, but len_size was defined as {self.len_size}')
 
         return len(value).to_bytes(self.len_size, byteorder=self.endian)
-        
+
     def to_byte_array(self) -> bytes:
         '''Translate all keys and values into an array of bytes.'''
         values = bytes()
@@ -211,7 +211,7 @@ class TLV:
             self.__setitem__(t, v)
         # Done parsing
         return True
-                    
+
 
 class EmptyTLV(TLV):
     '''Empty TLV'''
@@ -227,7 +227,7 @@ class EmptyTLV(TLV):
         len_size = self.len_size or 1
         value += int(0).to_bytes(len_size, byteorder='big')
         return value
-        
+
     def tree(self, offset: int = 0, use_names: bool = False) -> str:
         s = '' if offset == 0 else '\r\n'
         tag = str(hexlify(int(self.tag).to_bytes(self.tag_size, byteorder='big')), 'ascii')
