@@ -18,7 +18,7 @@ class BasicTests(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        TLV.set_tag_map(config)
+        TLV.set_global_tag_map(config)
 
     def setUp(self):
         self.tag = TLV(len_size=2)

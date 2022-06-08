@@ -95,8 +95,17 @@ class TLV:
 
     @classmethod
     def set_tag_map(cls, map: Dict) -> None:
-        '''Set a map for tag.
-        
+        '''Set a tag map globally for all classes (DEPRECATED, please use set_global_tag_map)
+
+        :args:
+            map: dict with keys names
+        '''
+        cls.set_global_tag_map(map)
+
+    @classmethod
+    def set_global_tag_map(cls, map: Dict) -> None:
+        '''Set a tag map globally for all classes
+
         :args:
             map: dict with keys names
         '''

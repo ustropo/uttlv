@@ -21,7 +21,7 @@ class TestIterate(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        TLV.set_tag_map(config)
+        TLV.set_global_tag_map(config)
 
 
     def setUp(self):

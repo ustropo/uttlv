@@ -125,7 +125,7 @@ tag:
   }
 
   # Set global default map
-  TLV.set_tag_map(config)
+  TLV.set_global_tag_map(config)
 
   # Set tag map for a specific instance (this will override the global setting)
   t = TLV()
