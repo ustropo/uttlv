@@ -91,6 +91,7 @@ class TLV:
         return TLVIterator(self)
 
     def _new_equivalent_tlv(self) -> TLV:
+        '''Creates a new TLV object with the same decode settings as self. Useful for parsing nested structures.'''
         return TLV(self.indent, self.tag_size, self.len_size, self.endian)
 
     @classmethod
