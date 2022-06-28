@@ -124,11 +124,15 @@ tag:
       0x09: {TLV.Config.Type: TLV, TLV.Config.Name: 'Empty'}
   }
 
-  # Set map
-  TLV.set_tag_map(config)
+  # Set global default map
+  TLV.set_global_tag_map(config)
+
+  # Set tag map for a specific instance (this will override the global setting)
+  t = TLV()
+  t.set_local_tag_map(config)
 ```
 
-For now, only 'int', 'str', 'bytes' and 'TLV' are accepted as valid classes. Any other class will raise
+For now, only 'int', 'str', 'bytes', 'TLV', and a dictionary are accepted as valid classes. Any other class will raise
 AttributeError.
 
 If a tag map is configured, one can use the tag name to access its value:
@@ -137,6 +141,18 @@ If a tag map is configured, one can use the tag name to access its value:
  t = TLV()
  t['NUM_POINTS'] = 10
  print(t['NUM_POINTS'])
+```
+
+Nested tag maps can be configured by replacing the configured type with another configuration dictionary:
+
+```python
+  config = {
+    0x01: {TLV.Config.Name: 'FIRST_NEST', TLV.Config.Type: {
+      0x01: {TLV.Config.Name: 'SECOND_NEST', TLV.Config.Type: {
+        0x01: {TLV.Config.}
+      }}
+    }}
+  }
 ```
 
 And also can print it with all tag names instead of values:

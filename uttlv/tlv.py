@@ -26,7 +26,7 @@ class TLV:
                 of the value.
     '''
     Config = enum.Enum('Config', 'Type Name')
-    tag_map = {}
+    _global_tag_map = {}
 
     def __init__(self, indent=4, tag_size=1, len_size=None, endian='big'):
         '''
@@ -43,7 +43,15 @@ class TLV:
         self.len_size = len_size
         self.endian = endian
         self._items = {}
-        
+        self._local_tag_map = None
+
+    @property
+    def tag_map(self) -> Dict:
+        if self._local_tag_map is not None:
+            return self._local_tag_map
+        else:
+            return TLV._global_tag_map
+
     def __setitem__(self, key, value):
         real_key = self.__getkey__(key)
         self.check_key(real_key)
@@ -60,7 +68,7 @@ class TLV:
         if isinstance(key, int):
             return key
         if isinstance(key, str):
-            for k, v in TLV.tag_map.items():
+            for k, v in self.tag_map.items():
                 name = v.get(TLV.Config.Name)
                 if name and name == key:
                     return k
@@ -82,10 +90,23 @@ class TLV:
     def __iter__(self):
         return TLVIterator(self)
 
+    def _new_equivalent_tlv(self) -> TLV:
+        '''Creates a new TLV object with the same decode settings as self. Useful for parsing nested structures.'''
+        return TLV(self.indent, self.tag_size, self.len_size, self.endian)
+
     @classmethod
     def set_tag_map(cls, map: Dict) -> None:
-        '''Set a map for tag.
-        
+        '''Set a tag map globally for all classes (DEPRECATED, please use set_global_tag_map)
+
+        :args:
+            map: dict with keys names
+        '''
+        cls.set_global_tag_map(map)
+
+    @classmethod
+    def set_global_tag_map(cls, map: Dict) -> None:
+        '''Set a tag map globally for all classes
+
         :args:
             map: dict with keys names
         '''
@@ -97,8 +118,24 @@ class TLV:
             t = v.get(TLV.Config.Type, '')
             if t not in al_types:
                 raise AttributeError(f'Invalid tag type {t} for {k} -> {v}')
-        cls.tag_map = map
-    
+        cls._global_tag_map = map
+
+    def set_local_tag_map(self, map: Dict) -> None:
+        '''Set a class-instance-specific tag map.
+
+        :args:
+            map: tag map to set class instance to.
+        '''
+        self._local_tag_map = map
+
+        # Iterate through any nested tag maps
+        for index, cfg in map.items():
+            tg_type = cfg.get(TLV.Config.Type)
+            if tg_type is not None and type(tg_type) is dict:
+                if index not in self._items:
+                    self._items[index] = self._new_equivalent_tlv()
+                self._items[index].set_local_tag_map(tg_type)
+
     def check_key(self, key: int) -> bool:
         '''Check if key is valid is inside limits.
         
@@ -116,7 +153,7 @@ class TLV:
             value: value to be inserted.
         '''
         if not any(isinstance(value, t) for t in ALLOWED_TYPES):
-            raise TypeError('Invalid value type format.')
+            raise TypeError(f'Invalid value type format {type(value)}.')
         return True
 
     def encode_length(self, value: bytes) -> bytes:
@@ -138,7 +175,7 @@ class TLV:
             raise ValueError(f'{value} takes up {required_len_size} bytes, but len_size was defined as {self.len_size}')
 
         return len(value).to_bytes(self.len_size, byteorder=self.endian)
-        
+
     def to_byte_array(self) -> bytes:
         '''Translate all keys and values into an array of bytes.'''
         values = bytes()
@@ -160,7 +197,7 @@ class TLV:
             # Create line
             tag = str(hexlify(int(k).to_bytes(self.tag_size, byteorder=self.endian)), 'ascii')
             if use_names:
-                map = TLV.tag_map.get(k, None)
+                map = self.tag_map.get(k, None)
                 if map:
                     name = map.get(TLV.Config.Name, None) 
                     if name:
@@ -200,18 +237,23 @@ class TLV:
             # Next value
             aux = aux[l:]
             # Check if tag has any parser
-            tg_cfg = TLV.tag_map.get(t)
+            tg_cfg = self.tag_map.get(t)
             if tg_cfg is not None:
                 tg_type = tg_cfg.get(TLV.Config.Type)
                 if tg_type is not None:
-                    frm = ALLOWED_TYPES.get(tg_type)
-                    if frm is not None:
-                        v = frm().parse(v, TLV(self.indent, self.tag_size, self.len_size, self.endian))
+                    # *Ideally* we would include this in ALLOWED_TYPES, but this is the easiest way I can think of
+                    # to pass in the tag map config at the same time.
+                    if type(tg_type) is dict:
+                        v = NestedEncoder(tg_type).parse(v, self._new_equivalent_tlv())
+                    else:
+                        frm = ALLOWED_TYPES.get(tg_type)
+                        if frm is not None:
+                            v = frm().parse(v, self._new_equivalent_tlv())
             # Set value
             self.__setitem__(t, v)
         # Done parsing
         return True
-                    
+
 
 class EmptyTLV(TLV):
     '''Empty TLV'''
@@ -227,7 +269,7 @@ class EmptyTLV(TLV):
         len_size = self.len_size or 1
         value += int(0).to_bytes(len_size, byteorder='big')
         return value
-        
+
     def tree(self, offset: int = 0, use_names: bool = False) -> str:
         s = '' if offset == 0 else '\r\n'
         tag = str(hexlify(int(self.tag).to_bytes(self.tag_size, byteorder='big')), 'ascii')
