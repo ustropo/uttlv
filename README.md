@@ -191,7 +191,7 @@ respectively.
 
 You can iterate through the available tags inside a TLV object by using `iter()`:
 
-```
+```python
 t = TLV()
 t.parse_array(bytes(command_data))
 
