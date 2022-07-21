@@ -1,5 +1,6 @@
-from uttlv import *
-import unittest
+import pytest
+
+from uttlv import TLV
 
 
 config = {
@@ -15,24 +16,25 @@ config = {
 }
 
 
-class TreeTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
+class TestTree:
+
+    def setup_class(self):
         TLV.set_global_tag_map(config)
 
-    def setUp(self):
+    def setup_method(self):
         self.tag = TLV()
 
     def test_tree_one(self):
-        '''Test tree function.'''
+        """Test tree function."""
         t = TLV()
         t[1] = 10
         tree = t.tree()
-        expected = '01: 10\r\n'
-        self.assertEqual(expected, tree)
+        exp = '01: 10\r\n'
+
+        assert exp == tree
 
     def test_tree_many(self):
-        '''Test tree pretty function.'''
+        """Test tree pretty function."""
         t = TLV()
         t[1] = 10
         t[2] = 20
@@ -41,9 +43,10 @@ class TreeTests(unittest.TestCase):
         t1[1] = 10
         t1[2] = 30
         t[7] = t1
-        expected = '01: 10\r\n02: 20\r\n03: test\r\n07: \r\n    01: 10\r\n    02: 30\r\n\r\n'
+        exp = '01: 10\r\n02: 20\r\n03: test\r\n07: \r\n    01: 10\r\n    02: 30\r\n\r\n'
         actual = t.tree()
-        self.assertEqual(expected, actual)
+
+        assert exp == actual
 
     def test_tree_with_names(self):
         t = TLV()
@@ -54,6 +57,7 @@ class TreeTests(unittest.TestCase):
         t1[1] = 10
         t1[2] = 30
         t[7] = t1
-        expected = 'NUM_POINTS: 10\r\nIDLE_PERIOD: 20\r\nNAME: test\r\nRELATED: \r\n    NUM_POINTS: 10\r\n    IDLE_PERIOD: 30\r\n\r\n'
+        exp = 'NUM_POINTS: 10\r\nIDLE_PERIOD: 20\r\nNAME: test\r\nRELATED: \r\n    NUM_POINTS: 10\r\n    IDLE_PERIOD: 30\r\n\r\n'
         actual = t.tree(use_names=True)
-        self.assertEqual(expected, actual)
+
+        assert exp == actual

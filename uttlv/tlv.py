@@ -7,7 +7,7 @@ import math
 
 
 class TLV:
-    '''
+    """
     Class that represents a TLV (tag-length-value) object.
 
     More: https://en.wikipedia.org/wiki/Type-length-value
@@ -22,21 +22,21 @@ class TLV:
 
         where:
             tag value is the int tag value.
-            class name is the name of the class that represents the type 
+            class name is the name of the class that represents the type
                 of the value.
-    '''
+    """
     Config = enum.Enum('Config', 'Type Name')
     _global_tag_map = {}
 
     def __init__(self, indent=4, tag_size=1, len_size=None, endian='big'):
-        '''
+        """
         :args:
             indent: How many spaces to use in tree() method
             tag_size: How many bytes a tag will contain in the array
             len_size: How many bytes the length info will occupy in the final
                         array, None (default) for automatically determine per
                         field
-        '''
+        """
         super().__init__()
         self.indent = indent
         self.tag_size = tag_size
@@ -64,7 +64,7 @@ class TLV:
         return self._items[real_key]
 
     def __getkey__(self, key):
-        '''Get real tag from a given string'''
+        """Get real tag from a given string"""
         if isinstance(key, int):
             return key
         if isinstance(key, str):
@@ -91,25 +91,25 @@ class TLV:
         return TLVIterator(self)
 
     def _new_equivalent_tlv(self) -> TLV:
-        '''Creates a new TLV object with the same decode settings as self. Useful for parsing nested structures.'''
+        """Creates a new TLV object with the same decode settings as self. Useful for parsing nested structures."""
         return TLV(self.indent, self.tag_size, self.len_size, self.endian)
 
     @classmethod
     def set_tag_map(cls, map: Dict) -> None:
-        '''Set a tag map globally for all classes (DEPRECATED, please use set_global_tag_map)
+        """Set a tag map globally for all classes (DEPRECATED, please use set_global_tag_map)
 
         :args:
             map: dict with keys names
-        '''
+        """
         cls.set_global_tag_map(map)
 
     @classmethod
     def set_global_tag_map(cls, map: Dict) -> None:
-        '''Set a tag map globally for all classes
+        """Set a tag map globally for all classes
 
         :args:
             map: dict with keys names
-        '''
+        """
         # Check if the map has correct types
         al_types = ALLOWED_TYPES.keys()
         for k, v in map.items():
@@ -121,11 +121,11 @@ class TLV:
         cls._global_tag_map = map
 
     def set_local_tag_map(self, map: Dict) -> None:
-        '''Set a class-instance-specific tag map.
+        """Set a class-instance-specific tag map.
 
         :args:
             map: tag map to set class instance to.
-        '''
+        """
         self._local_tag_map = map
 
         # Iterate through any nested tag maps
@@ -137,27 +137,27 @@ class TLV:
                 self._items[index].set_local_tag_map(tg_type)
 
     def check_key(self, key: int) -> bool:
-        '''Check if key is valid is inside limits.
-        
+        """Check if key is valid is inside limits.
+
         :args:
             key: key int value.
-        '''
+        """
         if not isinstance(key, int) and (key <= 0 or key >= 2**16):
             raise TypeError('Invalid key format.')
         return True
 
     def check_value(self, value: Any[TLV, str, int, bytes]) -> bool:
-        '''Check if value class is a valid one.
-        
+        """Check if value class is a valid one.
+
         :args:
             value: value to be inserted.
-        '''
+        """
         if not any(isinstance(value, t) for t in ALLOWED_TYPES):
             raise TypeError(f'Invalid value type format {type(value)}.')
         return True
 
     def encode_length(self, value: bytes) -> bytes:
-        '''Translate the length of value into an array.'''
+        """Translate the length of value into an array."""
         required_len_size = math.ceil(len(value).bit_length() / 8)
         if required_len_size > 16:
             raise AttributeError(f'Max allowed value length is {2**(8*15)-1} bytes, given value is {len(value)} bytes')
@@ -177,7 +177,7 @@ class TLV:
         return len(value).to_bytes(self.len_size, byteorder=self.endian)
 
     def to_byte_array(self) -> bytes:
-        '''Translate all keys and values into an array of bytes.'''
+        """Translate all keys and values into an array of bytes."""
         values = bytes()
         for k, v in self._items.items():
             frm = ALLOWED_TYPES.get(type(v))
@@ -189,7 +189,7 @@ class TLV:
         return values
 
     def tree(self, offset: int = 0, use_names: bool = False) -> str:
-        '''Print a tree view of the object.'''
+        """Print a tree view of the object."""
         s = '' if offset == 0 else '\r\n'
         for k, v in self._items.items():
             frm = ALLOWED_TYPES.get(type(v))
@@ -211,7 +211,7 @@ class TLV:
         return data[0] - 0x80 + 1
 
     def parse_array(self, data: Any[list, bytes]) -> bool:
-        '''Parse a byte array into a TLV object'''
+        """Parse a byte array into a TLV object"""
         if isinstance(data, list):
             data = bytes(data)
         elif not isinstance(data, bytes):
@@ -256,7 +256,7 @@ class TLV:
 
 
 class EmptyTLV(TLV):
-    '''Empty TLV'''
+    """Empty TLV"""
     def __init__(self, tag: int, **kwargs):
         super().__init__(**kwargs)
         self.tag = tag
@@ -283,15 +283,14 @@ class EmptyTLV(TLV):
 
 
 class TLVIterator:
-    '''Iterator class'''
+    """Iterator class"""
     def __init__(self, tlv: TLV):
         self._tlv = tlv
         self._it = iter(self._tlv._items)
 
     def __next__(self):
-        ''''Returns the next value from items dictionary '''
+        """Returns the next value from items dictionary """
         return next(self._it)
-
 
 
 ALLOWED_TYPES = {

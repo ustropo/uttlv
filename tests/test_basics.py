@@ -1,5 +1,5 @@
+import pytest
 from uttlv import *
-import unittest
 
 config = {
     0x01: {TLV.Config.Type: int, TLV.Config.Name: 'NUM_POINTS'},
@@ -13,14 +13,13 @@ config = {
 }
 
 
-class BasicTests(unittest.TestCase):
+class TestBasic:
     """Class to execute some basic tests over package."""
-    
-    @classmethod
-    def setUpClass(cls):
+
+    def setup_class(self):
         TLV.set_global_tag_map(config)
 
-    def setUp(self):
+    def setup_method(self):
         self.tag = TLV(len_size=2)
         self.vtag = TLV()
 
@@ -31,7 +30,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A]
         # Check value
-        self.assertListEqual(exp, v, 'Value is not what expected.')
+        assert exp == v
 
     def test_int_nested(self):
         """Test more than one int tag in an array."""
@@ -41,7 +40,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0xFF]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_str_one(self):
         """Test string tag"""
@@ -50,7 +49,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_str_nested(self):
         """Test string tag"""
@@ -60,7 +59,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65, 0x04, 0x00, 0x06, 0x6d, 0x61, 0x69, 0x73, 0x75, 0x6d]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_bytes_one(self):
         """Test array of bytes tag"""
@@ -69,7 +68,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x05, 0x00, 0x03, 0x01, 0x02, 0x03]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_bytes_nested(self):
         """Test array of bytes tag"""
@@ -79,7 +78,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x05, 0x00, 0x03, 0x01, 0x02, 0x03, 0x06, 0x00, 0x03, 0x05, 0x06, 0x07]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_tlv_one(self):
         """Test a TLV tag object"""
@@ -90,7 +89,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x07, 0x00, 0x07, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x19]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_tlv_nested(self):
         """Test multiple tlv tag object"""
@@ -104,7 +103,7 @@ class BasicTests(unittest.TestCase):
         v = list(self.tag.to_byte_array())
         exp = [0x07, 0x00, 0x07, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x20, 0x08, 0x00, 0x08, 0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_empty(self):
         """Test empty TLV object"""
@@ -113,43 +112,47 @@ class BasicTests(unittest.TestCase):
         v = list(t.to_byte_array())
         exp = [0x08, 0x00, 0x00]
         # Check value
-        self.assertListEqual(exp, v, 'Value not what expected')
+        assert exp == v
 
     def test_key_name(self):
-        '''Test access by key name.'''
+        """Test access by key name."""
         t = TLV()
         t['NUM_POINTS'] = 10
 
-        self.assertEqual(t[1], 10)
+        assert t[1] == 10
 
     def test_attribute(self):
-        '''Test access by attribute name.'''
+        """Test access by attribute name."""
         t = TLV()
         t['NUM_POINTS'] = 10
 
-        self.assertEqual(t.NUM_POINTS, 10)
+        assert t.NUM_POINTS == 10
 
     def test_auto_len_single_byte(self):
         self.vtag[0x00] = b'1'
-        expected = b'\x00\x01\x31'
-        self.assertEqual(self.vtag.to_byte_array(), expected)
+        exp = b'\x00\x01\x31'
+
+        assert exp == self.vtag.to_byte_array()
 
     def test_auto_len_double_byte(self):
         self.vtag[0x01] = bytes(c % 256 for c in range(2 ** 7 + 23))
-        expected = b'\1\x81\x97' + self.vtag[0x01]
-        self.assertEqual(self.vtag.to_byte_array(), expected)
+        exp = b'\1\x81\x97' + self.vtag[0x01]
+
+        assert exp == self.vtag.to_byte_array()
 
     def test_auto_len_triple_byte(self):
         self.vtag[0x02] = bytes(c % 256 for c in range(2 ** 15 + 23))
-        expected = b'\2\x82\x80\x17' + self.vtag[0x02]
-        self.assertEqual(self.vtag.to_byte_array(), expected)
+        exp = b'\2\x82\x80\x17' + self.vtag[0x02]
+
+        assert exp == self.vtag.to_byte_array()
 
     def test_auto_len_multiple_sizes(self):
         self.vtag[0x00] = b'1'
         self.vtag[0x01] = bytes(c % 256 for c in range(2**7 + 23))
         self.vtag[0x02] = bytes(c % 256 for c in range(2**15 + 23))
-        expected = (
+        exp = (
                 b'\0\1\x31\1\x81\x97' + self.vtag[0x01]
                 + b'\2\x82\x80\x17' + self.vtag[0x02]
         )
-        self.assertEqual(self.vtag.to_byte_array(), expected)
+
+        assert exp == self.vtag.to_byte_array()
