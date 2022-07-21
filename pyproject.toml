@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "uttlv"
+version = "0.7.0"
+description = "Python Library for TLV objects"
+authors = ["Fernando Cleber de Souza <cleberdsouza@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+coverage = "^6.4.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
