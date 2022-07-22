@@ -15,6 +15,7 @@ coverage = "^6.4.2"
 flake8 = "^4.0.1"
 isort = "^5.10.1"
 black = "^22.6.0"
+pre-commit = "^2.20.0"
 
 [tool.black]
 line-length = 99
@@ -30,6 +31,10 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

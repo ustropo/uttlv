@@ -5,7 +5,13 @@ import math
 from binascii import hexlify
 from typing import Any, Dict
 
-from .encoder import BytesEncoder, DefaultEncoder, IntEncoder, NestedEncoder, Utf8Encoder
+from .encoder import (
+    BytesEncoder,
+    DefaultEncoder,
+    IntEncoder,
+    NestedEncoder,
+    Utf8Encoder,
+)
 
 
 class TLV:
