@@ -1,106 +1,87 @@
-import pytest
 from uttlv import *
-
-config = {
-    0x01: {TLV.Config.Type: int, TLV.Config.Name: 'NUM_POINTS'},
-    0x02: {TLV.Config.Type: int, TLV.Config.Name: 'IDLE_PERIOD'},
-    0x03: {TLV.Config.Type: str, TLV.Config.Name: 'NAME'},
-    0x04: {TLV.Config.Type: str, TLV.Config.Name: 'CITY'},
-    0x05: {TLV.Config.Type: bytes, TLV.Config.Name: 'VERSION'},
-    0x06: {TLV.Config.Type: bytes, TLV.Config.Name: 'DATA'},
-    0x07: {TLV.Config.Type: TLV, TLV.Config.Name: 'RELATED'},
-    0x08: {TLV.Config.Type: TLV, TLV.Config.Name: 'COMMENT'}
-}
 
 
 class TestBasic:
     """Class to execute some basic tests over package."""
 
-    def setup_class(self):
-        TLV.set_global_tag_map(config)
-
-    def setup_method(self):
-        self.tag = TLV(len_size=2)
-        self.vtag = TLV()
-
-    def test_int_one(self):
+    def test_int_one(self, tag):
         """Test if a TLV object is corrected set to an array """
-        self.tag[0x01] = 10
+        tag[0x01] = 10
         # Create an array
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A]
         # Check value
         assert exp == v
 
-    def test_int_nested(self):
+    def test_int_nested(self, tag):
         """Test more than one int tag in an array."""
-        self.tag[0x01] = 10
-        self.tag[0x02] = 255
+        tag[0x01] = 10
+        tag[0x02] = 255
         # Create array 
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0xFF]
         # Check value
         assert exp == v
 
-    def test_str_one(self):
+    def test_str_one(self, tag):
         """Test string tag"""
-        self.tag[0x03] = 'teste'
+        tag[0x03] = 'teste'
         # Create array
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
         # Check value
         assert exp == v
 
-    def test_str_nested(self):
+    def test_str_nested(self, tag):
         """Test string tag"""
-        self.tag[0x03] = 'teste'
-        self.tag[0x04] = 'maisum'
+        tag[0x03] = 'teste'
+        tag[0x04] = 'maisum'
         # Create array
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65, 0x04, 0x00, 0x06, 0x6d, 0x61, 0x69, 0x73, 0x75, 0x6d]
         # Check value
         assert exp == v
 
-    def test_bytes_one(self):
+    def test_bytes_one(self, tag):
         """Test array of bytes tag"""
-        self.tag[0x05] = bytes([1, 2, 3])
+        tag[0x05] = bytes([1, 2, 3])
         # Create array
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x05, 0x00, 0x03, 0x01, 0x02, 0x03]
         # Check value
         assert exp == v
 
-    def test_bytes_nested(self):
+    def test_bytes_nested(self, tag):
         """Test array of bytes tag"""
-        self.tag[0x05] = bytes([1, 2, 3])
-        self.tag[0x06] = bytes([5, 6, 7])
+        tag[0x05] = bytes([1, 2, 3])
+        tag[0x06] = bytes([5, 6, 7])
         # Create array
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x05, 0x00, 0x03, 0x01, 0x02, 0x03, 0x06, 0x00, 0x03, 0x05, 0x06, 0x07]
         # Check value
         assert exp == v
 
-    def test_tlv_one(self):
+    def test_tlv_one(self, tag):
         """Test a TLV tag object"""
         t = TLV(len_size=2)
         t[0x01] = 25
-        self.tag[0x07] = t
+        tag[0x07] = t
         # Create array
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x07, 0x00, 0x07, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x19]
         # Check value
         assert exp == v
 
-    def test_tlv_nested(self):
+    def test_tlv_nested(self, tag):
         """Test multiple tlv tag object"""
         t1 = TLV(len_size=2)
         t1[0x02] = 32
         t2 = TLV(len_size=2)
         t2[0x03] = 'teste'
-        self.tag[0x07] = t1
-        self.tag[0x08] = t2
+        tag[0x07] = t1
+        tag[0x08] = t2
         # Create array
-        v = list(self.tag.to_byte_array())
+        v = list(tag.to_byte_array())
         exp = [0x07, 0x00, 0x07, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x20, 0x08, 0x00, 0x08, 0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
         # Check value
         assert exp == v
@@ -114,45 +95,45 @@ class TestBasic:
         # Check value
         assert exp == v
 
-    def test_key_name(self):
+    def test_key_name(self, apply_global_map):
         """Test access by key name."""
         t = TLV()
         t['NUM_POINTS'] = 10
 
         assert t[1] == 10
 
-    def test_attribute(self):
+    def test_attribute(self, apply_global_map):
         """Test access by attribute name."""
         t = TLV()
         t['NUM_POINTS'] = 10
 
         assert t.NUM_POINTS == 10
 
-    def test_auto_len_single_byte(self):
-        self.vtag[0x00] = b'1'
+    def test_auto_len_single_byte(self, auto_len_tag):
+        auto_len_tag[0x00] = b'1'
         exp = b'\x00\x01\x31'
 
-        assert exp == self.vtag.to_byte_array()
+        assert exp == auto_len_tag.to_byte_array()
 
-    def test_auto_len_double_byte(self):
-        self.vtag[0x01] = bytes(c % 256 for c in range(2 ** 7 + 23))
-        exp = b'\1\x81\x97' + self.vtag[0x01]
+    def test_auto_len_double_byte(self, auto_len_tag):
+        auto_len_tag[0x01] = bytes(c % 256 for c in range(2 ** 7 + 23))
+        exp = b'\1\x81\x97' + auto_len_tag[0x01]
 
-        assert exp == self.vtag.to_byte_array()
+        assert exp == auto_len_tag.to_byte_array()
 
-    def test_auto_len_triple_byte(self):
-        self.vtag[0x02] = bytes(c % 256 for c in range(2 ** 15 + 23))
-        exp = b'\2\x82\x80\x17' + self.vtag[0x02]
+    def test_auto_len_triple_byte(self, auto_len_tag):
+        auto_len_tag[0x02] = bytes(c % 256 for c in range(2 ** 15 + 23))
+        exp = b'\2\x82\x80\x17' + auto_len_tag[0x02]
 
-        assert exp == self.vtag.to_byte_array()
+        assert exp == auto_len_tag.to_byte_array()
 
-    def test_auto_len_multiple_sizes(self):
-        self.vtag[0x00] = b'1'
-        self.vtag[0x01] = bytes(c % 256 for c in range(2**7 + 23))
-        self.vtag[0x02] = bytes(c % 256 for c in range(2**15 + 23))
+    def test_auto_len_multiple_sizes(self, auto_len_tag):
+        auto_len_tag[0x00] = b'1'
+        auto_len_tag[0x01] = bytes(c % 256 for c in range(2**7 + 23))
+        auto_len_tag[0x02] = bytes(c % 256 for c in range(2**15 + 23))
         exp = (
-                b'\0\1\x31\1\x81\x97' + self.vtag[0x01]
-                + b'\2\x82\x80\x17' + self.vtag[0x02]
+                b'\0\1\x31\1\x81\x97' + auto_len_tag[0x01]
+                + b'\2\x82\x80\x17' + auto_len_tag[0x02]
         )
 
-        assert exp == self.vtag.to_byte_array()
+        assert exp == auto_len_tag.to_byte_array()
