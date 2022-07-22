@@ -1,59 +1,41 @@
-from uttlv import *
-import unittest
+from uttlv import TLV
 
 
-config = {
-    0x01: {TLV.Config.Type: int, TLV.Config.Name: 'NUM_POINTS'},
-    0x02: {TLV.Config.Type: int, TLV.Config.Name: 'IDLE_PERIOD'},
-    0x03: {TLV.Config.Type: str, TLV.Config.Name: 'NAME'},
-    0x04: {TLV.Config.Type: str, TLV.Config.Name: 'CITY'},
-    0x05: {TLV.Config.Type: bytes, TLV.Config.Name: 'VERSION'},
-    0x06: {TLV.Config.Type: bytes, TLV.Config.Name: 'DATA'},
-    0x07: {TLV.Config.Type: TLV, TLV.Config.Name: 'RELATED'},
-    0x08: {TLV.Config.Type: TLV, TLV.Config.Name: 'COMMENT'},
-    0x09: {TLV.Config.Type: TLV, TLV.Config.Name: 'Empty'}
-}
+class TestTree:
+    def test_tree_one(self, tag):
+        """Test tree function."""
+        tag[1] = 10
+        tree = tag.tree()
+        exp = "01: 10\r\n"
 
+        assert exp == tree
 
-class TreeTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        TLV.set_global_tag_map(config)
-
-    def setUp(self):
-        self.tag = TLV()
-
-    def test_tree_one(self):
-        '''Test tree function.'''
-        t = TLV()
-        t[1] = 10
-        tree = t.tree()
-        expected = '01: 10\r\n'
-        self.assertEqual(expected, tree)
-
-    def test_tree_many(self):
-        '''Test tree pretty function.'''
-        t = TLV()
-        t[1] = 10
-        t[2] = 20
-        t[3] = 'test'
+    def test_tree_many(self, tag):
+        """Test tree pretty function."""
+        tag[1] = 10
+        tag[2] = 20
+        tag[3] = "test"
         t1 = TLV()
         t1[1] = 10
         t1[2] = 30
-        t[7] = t1
-        expected = '01: 10\r\n02: 20\r\n03: test\r\n07: \r\n    01: 10\r\n    02: 30\r\n\r\n'
-        actual = t.tree()
-        self.assertEqual(expected, actual)
+        tag[7] = t1
+        exp = "01: 10\r\n02: 20\r\n03: test\r\n07: \r\n    01: 10\r\n    02: 30\r\n\r\n"
+        actual = tag.tree()
 
-    def test_tree_with_names(self):
-        t = TLV()
-        t[1] = 10
-        t[2] = 20
-        t[3] = 'test'
+        assert exp == actual
+
+    def test_tree_with_names(self, tag):
+        tag[1] = 10
+        tag[2] = 20
+        tag[3] = "test"
         t1 = TLV()
         t1[1] = 10
         t1[2] = 30
-        t[7] = t1
-        expected = 'NUM_POINTS: 10\r\nIDLE_PERIOD: 20\r\nNAME: test\r\nRELATED: \r\n    NUM_POINTS: 10\r\n    IDLE_PERIOD: 30\r\n\r\n'
-        actual = t.tree(use_names=True)
-        self.assertEqual(expected, actual)
+        tag[7] = t1
+        exp = (
+            "NUM_POINTS: 10\r\nIDLE_PERIOD: 20\r\nNAME: test\r\nRELATED: \r\n"
+            "    NUM_POINTS: 10\r\n    IDLE_PERIOD: 30\r\n\r\n"
+        )
+        actual = tag.tree(use_names=True)
+
+        assert exp == actual

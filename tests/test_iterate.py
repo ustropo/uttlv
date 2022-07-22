@@ -1,70 +1,39 @@
-from uttlv import *
-import unittest
+import pytest
 
 from uttlv.tlv import TLVIterator
 
-config = {
-    0x01: {TLV.Config.Type: int, TLV.Config.Name: 'NUM_POINTS'},
-    0x02: {TLV.Config.Type: int, TLV.Config.Name: 'IDLE_PERIOD'},
-    0x03: {TLV.Config.Type: str, TLV.Config.Name: 'NAME'},
-    0x04: {TLV.Config.Type: str, TLV.Config.Name: 'CITY'},
-    0x05: {TLV.Config.Type: bytes, TLV.Config.Name: 'VERSION'},
-    0x06: {TLV.Config.Type: bytes, TLV.Config.Name: 'DATA'},
-    0x07: {TLV.Config.Type: TLV, TLV.Config.Name: 'RELATED'},
-    0x08: {TLV.Config.Type: TLV, TLV.Config.Name: 'COMMENT'},
-    0x09: {TLV.Config.Type: TLV, TLV.Config.Name: 'Empty'}
-}
 
+class TestIterator:
+    """Test iteration trough top-level tags."""
 
-class TestIterate(unittest.TestCase):
-    '''Test iteration trough top-level tags.'''
+    def test_iterator_available(self, multi_tag):
+        """Test if correct iterator available"""
+        it = iter(multi_tag)
 
-    @classmethod
-    def setUpClass(cls):
-        TLV.set_global_tag_map(config)
+        assert isinstance(it, TLVIterator)
 
+    def test_iteration_trough_objects(self, multi_tag):
+        """Test iteration trough parsed values"""
+        it = iter(multi_tag)
 
-    def setUp(self):
-        self.tlv = TLV(len_size=2)
-        self.vtlv = TLV()
-        '''Int array.'''
-        arr = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x10]
-        self.tlv.parse_array(arr)
+        assert next(it) == 1
+        assert next(it) == 2
+        assert next(it) == 8
 
-        '''str array'''
-        arr = [0x02, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
-        self.tlv.parse_array(arr)
+    def test_iteration_raise_exception(self, multi_tag):
+        """Test out of index iteration"""
+        it = iter(multi_tag)
 
-        '''tlv object type'''
-        arr = [0x08, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0xFF]
-        self.tlv.parse_array(arr)
+        assert next(it) == 1
+        assert next(it) == 2
+        assert next(it) == 8
 
-    def test_iterator_available(self):
-        '''Test if correct iterator available'''
-        it = iter(self.tlv)
+        with pytest.raises(StopIteration):
+            next(it)
 
-        self.assertIsInstance(it, TLVIterator, 'Expected TLVIterator instance')
+    def test_iteration_empty_raise_exception(self, tag):
+        """Test empty class"""
+        it = iter(tag)
 
-    def test_iteration_trough_objects(self):
-        '''Test iteration trough parsed values'''
-        it = iter(self.tlv)
-
-        self.assertEqual(next(it), 1)
-        self.assertEqual(next(it), 2)
-        self.assertEqual(next(it), 8)
-
-    def test_iteration_raise_exception(self):
-        '''Test out of index iteration '''
-        it = iter(self.tlv)
-
-        self.assertEqual(next(it), 1)
-        self.assertEqual(next(it), 2)
-        self.assertEqual(next(it), 8)
-        self.assertRaises(StopIteration, next, it)
-
-    def test_iteration_empty_raise_exception(self):
-        '''Test empty class'''
-        tlv = TLV(len_size=2)
-        it = iter(tlv)
-
-        self.assertRaises(StopIteration, next, it)
+        with pytest.raises(StopIteration):
+            next(it)
