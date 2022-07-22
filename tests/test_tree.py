@@ -33,7 +33,8 @@ class TestTree:
         t1[1] = 10
         t1[2] = 30
         tag[7] = t1
-        exp = 'NUM_POINTS: 10\r\nIDLE_PERIOD: 20\r\nNAME: test\r\nRELATED: \r\n    NUM_POINTS: 10\r\n    IDLE_PERIOD: 30\r\n\r\n'
+        exp = 'NUM_POINTS: 10\r\nIDLE_PERIOD: 20\r\nNAME: test\r\nRELATED: \r\n' \
+              '    NUM_POINTS: 10\r\n    IDLE_PERIOD: 30\r\n\r\n'
         actual = tag.tree(use_names=True)
 
         assert exp == actual

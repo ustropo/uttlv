@@ -1,9 +1,12 @@
 from __future__ import annotations
-from typing import Dict, Any
-from .encoder import *
-from binascii import hexlify
+
 import enum
 import math
+from binascii import hexlify
+from typing import Any, Dict
+
+from .encoder import (BytesEncoder, DefaultEncoder, IntEncoder, NestedEncoder,
+                      Utf8Encoder)
 
 
 class TLV:
@@ -91,7 +94,10 @@ class TLV:
         return TLVIterator(self)
 
     def _new_equivalent_tlv(self) -> TLV:
-        """Creates a new TLV object with the same decode settings as self. Useful for parsing nested structures."""
+        """Creates a new TLV object with the same decode settings as self.
+
+        Useful for parsing nested structures.
+        """
         return TLV(self.indent, self.tag_size, self.len_size, self.endian)
 
     @classmethod
@@ -160,7 +166,8 @@ class TLV:
         """Translate the length of value into an array."""
         required_len_size = math.ceil(len(value).bit_length() / 8)
         if required_len_size > 16:
-            raise AttributeError(f'Max allowed value length is {2**(8*15)-1} bytes, given value is {len(value)} bytes')
+            raise AttributeError(f'Max allowed value length is {2**(8*15)-1} bytes, '
+                                 f'given value is {len(value)} bytes')
 
         if not self.len_size:
             if len(value) < 128:
@@ -172,7 +179,8 @@ class TLV:
             )
 
         if self.len_size < required_len_size:
-            raise ValueError(f'{value} takes up {required_len_size} bytes, but len_size was defined as {self.len_size}')
+            raise ValueError(f'{value} takes up {required_len_size} bytes, '
+                             f'but len_size was defined as {self.len_size}')
 
         return len(value).to_bytes(self.len_size, byteorder=self.endian)
 
@@ -199,7 +207,7 @@ class TLV:
             if use_names:
                 map = self.tag_map.get(k, None)
                 if map:
-                    name = map.get(TLV.Config.Name, None) 
+                    name = map.get(TLV.Config.Name, None)
                     if name:
                         tag = name
             s += f'{" " * offset}{tag}: {value}\r\n'
@@ -225,32 +233,33 @@ class TLV:
         aux = data
         while len(aux) > min_size:
             # Tag value
-            t = int.from_bytes(aux[:self.tag_size], byteorder=self.endian)
+            tag = int.from_bytes(aux[:self.tag_size], byteorder=self.endian)
             # Len value
             aux = aux[self.tag_size:]
             len_size = self.len_size or self.decode_len_size(aux)
             offset = 0 if len_size == 1 else 1
-            l = int.from_bytes(aux[offset:len_size], byteorder=self.endian)
+            length = int.from_bytes(aux[offset:len_size], byteorder=self.endian)
             # Value
             aux = aux[len_size:]
-            v = aux[:l]
+            value = aux[:length]
             # Next value
-            aux = aux[l:]
+            aux = aux[length:]
             # Check if tag has any parser
-            tg_cfg = self.tag_map.get(t)
+            tg_cfg = self.tag_map.get(tag)
             if tg_cfg is not None:
                 tg_type = tg_cfg.get(TLV.Config.Type)
                 if tg_type is not None:
-                    # *Ideally* we would include this in ALLOWED_TYPES, but this is the easiest way I can think of
+                    # *Ideally* we would include this in ALLOWED_TYPES,
+                    # but this is the easiest way I can think of
                     # to pass in the tag map config at the same time.
                     if type(tg_type) is dict:
-                        v = NestedEncoder(tg_type).parse(v, self._new_equivalent_tlv())
+                        value = NestedEncoder(tg_type).parse(value, self._new_equivalent_tlv())
                     else:
                         frm = ALLOWED_TYPES.get(tg_type)
                         if frm is not None:
-                            v = frm().parse(v, self._new_equivalent_tlv())
+                            value = frm().parse(value, self._new_equivalent_tlv())
             # Set value
-            self.__setitem__(t, v)
+            self.__setitem__(tag, value)
         # Done parsing
         return True
 

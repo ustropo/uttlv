@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from binascii import hexlify
 
 
@@ -7,13 +8,13 @@ class DefaultEncoder(object):
     def default(self, obj):
         try:
             return obj.to_byte_array()
-        except:
+        except AttributeError:
             raise TypeError('Invalid type')
-    
+
     def to_string(self, obj, offset=0, use_names=False):
         try:
             return obj.tree(offset + obj.indent, use_names)
-        except:
+        except AttributeError:
             pass
         return str(obj)
 
@@ -21,7 +22,7 @@ class DefaultEncoder(object):
         try:
             cls.parse_array(obj)
             return cls
-        except:
+        except AttributeError:
             pass
         return obj
 
