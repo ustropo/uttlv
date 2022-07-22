@@ -3,25 +3,28 @@ import pytest
 from uttlv import TLV
 
 global_tag_map = {
-    0x01: {TLV.Config.Type: int, TLV.Config.Name: 'NUM_POINTS'},
-    0x02: {TLV.Config.Type: int, TLV.Config.Name: 'IDLE_PERIOD'},
-    0x03: {TLV.Config.Type: str, TLV.Config.Name: 'NAME'},
-    0x04: {TLV.Config.Type: str, TLV.Config.Name: 'CITY'},
-    0x05: {TLV.Config.Type: bytes, TLV.Config.Name: 'VERSION'},
-    0x06: {TLV.Config.Type: bytes, TLV.Config.Name: 'DATA'},
-    0x07: {TLV.Config.Type: TLV, TLV.Config.Name: 'RELATED'},
-    0x08: {TLV.Config.Type: TLV, TLV.Config.Name: 'COMMENT'},
-    0x09: {TLV.Config.Type: TLV, TLV.Config.Name: 'Empty'}
+    0x01: {TLV.Config.Type: int, TLV.Config.Name: "NUM_POINTS"},
+    0x02: {TLV.Config.Type: int, TLV.Config.Name: "IDLE_PERIOD"},
+    0x03: {TLV.Config.Type: str, TLV.Config.Name: "NAME"},
+    0x04: {TLV.Config.Type: str, TLV.Config.Name: "CITY"},
+    0x05: {TLV.Config.Type: bytes, TLV.Config.Name: "VERSION"},
+    0x06: {TLV.Config.Type: bytes, TLV.Config.Name: "DATA"},
+    0x07: {TLV.Config.Type: TLV, TLV.Config.Name: "RELATED"},
+    0x08: {TLV.Config.Type: TLV, TLV.Config.Name: "COMMENT"},
+    0x09: {TLV.Config.Type: TLV, TLV.Config.Name: "Empty"},
 }
 
 nested_tag_map = {
-    0x01: {TLV.Config.Name: 'FIRST_NEST', TLV.Config.Type: {
-        0x01: {TLV.Config.Name: 'SECOND_NEST', TLV.Config.Type: {
-            0x01: {TLV.Config.Name: 'LEAF', TLV.Config.Type: int}
-        }}
-    }},
-
-    0x02: {TLV.Config.Type: int, TLV.Config.Name: 'NON_NESTED_DATA'}
+    0x01: {
+        TLV.Config.Name: "FIRST_NEST",
+        TLV.Config.Type: {
+            0x01: {
+                TLV.Config.Name: "SECOND_NEST",
+                TLV.Config.Type: {0x01: {TLV.Config.Name: "LEAF", TLV.Config.Type: int}},
+            }
+        },
+    },
+    0x02: {TLV.Config.Type: int, TLV.Config.Name: "NON_NESTED_DATA"},
 }
 
 

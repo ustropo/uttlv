@@ -21,7 +21,7 @@ class TestIterator:
         assert next(it) == 8
 
     def test_iteration_raise_exception(self, multi_tag):
-        """Test out of index iteration """
+        """Test out of index iteration"""
         it = iter(multi_tag)
 
         assert next(it) == 1

@@ -16,7 +16,7 @@ class TestParser:
         arr = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
         tag.parse_array(arr)
 
-        assert tag[0x03] == 'teste'
+        assert tag[0x03] == "teste"
 
     def test_single_bytes(self, tag):
         """Test single bytes array parser."""
@@ -44,12 +44,29 @@ class TestParser:
 
     def test_nested_str(self, tag):
         """Test nested string object"""
-        arr = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65, 0x04,
-               0x00, 0x06, 0x6d, 0x61, 0x69, 0x73, 0x75, 0x6d]
+        arr = [
+            0x03,
+            0x00,
+            0x05,
+            0x74,
+            0x65,
+            0x73,
+            0x74,
+            0x65,
+            0x04,
+            0x00,
+            0x06,
+            0x6D,
+            0x61,
+            0x69,
+            0x73,
+            0x75,
+            0x6D,
+        ]
         tag.parse_array(arr)
         # Check values
-        assert tag[0x03] == 'teste'
-        assert tag[0x04] == 'maisum'
+        assert tag[0x03] == "teste"
+        assert tag[0x04] == "maisum"
 
     def test_nested_byte(self, tag):
         """Test nested bytes object"""
@@ -61,14 +78,35 @@ class TestParser:
 
     def test_nested_tlv(self, tag):
         """Test a nested tlv tag"""
-        arr = [0x07, 0x00, 0x07, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x20, 0x08,
-               0x00, 0x08, 0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
+        arr = [
+            0x07,
+            0x00,
+            0x07,
+            0x02,
+            0x00,
+            0x04,
+            0x00,
+            0x00,
+            0x00,
+            0x20,
+            0x08,
+            0x00,
+            0x08,
+            0x03,
+            0x00,
+            0x05,
+            0x74,
+            0x65,
+            0x73,
+            0x74,
+            0x65,
+        ]
         tag.parse_array(arr)
         # Check value
         t1 = TLV(len_size=2)
         t1[0x02] = 32
         t2 = TLV(len_size=2)
-        t2[0x03] = 'teste'
+        t2[0x03] = "teste"
         # Assert
         assert tag[0x07] == t1
         assert tag[0x08] == t2
@@ -85,7 +123,7 @@ class TestParser:
         arr = [0x03, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
         auto_len_tag.parse_array(arr)
 
-        assert auto_len_tag[0x03] == 'teste'
+        assert auto_len_tag[0x03] == "teste"
 
     def test_auto_len_single_bytes(self, auto_len_tag):
         """Test single bytes array parser."""
@@ -113,12 +151,27 @@ class TestParser:
 
     def test_auto_len_nested_str(self, auto_len_tag):
         """Test nested string object"""
-        arr = [0x03, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65, 0x04,
-               0x06, 0x6d, 0x61, 0x69, 0x73, 0x75, 0x6d]
+        arr = [
+            0x03,
+            0x05,
+            0x74,
+            0x65,
+            0x73,
+            0x74,
+            0x65,
+            0x04,
+            0x06,
+            0x6D,
+            0x61,
+            0x69,
+            0x73,
+            0x75,
+            0x6D,
+        ]
         auto_len_tag.parse_array(arr)
         # Check values
-        assert auto_len_tag[0x03] == 'teste'
-        assert auto_len_tag[0x04] == 'maisum'
+        assert auto_len_tag[0x03] == "teste"
+        assert auto_len_tag[0x04] == "maisum"
 
     def test_auto_len_nested_byte(self, auto_len_tag):
         """Test nested bytes object"""
@@ -130,28 +183,66 @@ class TestParser:
 
     def test_auto_len_nested_tlv(self, auto_len_tag):
         """Test a nested tlv tag"""
-        arr = [0x07, 0x06, 0x02, 0x04, 0x00, 0x00, 0x00, 0x20,
-               0x08, 0x07, 0x03, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
+        arr = [
+            0x07,
+            0x06,
+            0x02,
+            0x04,
+            0x00,
+            0x00,
+            0x00,
+            0x20,
+            0x08,
+            0x07,
+            0x03,
+            0x05,
+            0x74,
+            0x65,
+            0x73,
+            0x74,
+            0x65,
+        ]
         auto_len_tag.parse_array(arr)
         # Check value
         t1 = TLV()
         t1[0x02] = 32
         t2 = TLV()
-        t2[0x03] = 'teste'
+        t2[0x03] = "teste"
         # Assert
         assert auto_len_tag[0x07] == t1
         assert auto_len_tag[0x08] == t2
 
     def test_auto_len_nested_tlv_with_empty(self, auto_len_tag):
         """Test a nested tlv tag"""
-        arr = [0x07, 0x06, 0x02, 0x04, 0x00, 0x00, 0x00, 0x20, 0x08, 0x07,
-               0x03, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65, 0x09, 0x02, 0x01, 0x00]
+        arr = [
+            0x07,
+            0x06,
+            0x02,
+            0x04,
+            0x00,
+            0x00,
+            0x00,
+            0x20,
+            0x08,
+            0x07,
+            0x03,
+            0x05,
+            0x74,
+            0x65,
+            0x73,
+            0x74,
+            0x65,
+            0x09,
+            0x02,
+            0x01,
+            0x00,
+        ]
         auto_len_tag.parse_array(arr)
         # Check value
         t1 = TLV()
         t1[0x02] = 32
         t2 = TLV()
-        t2[0x03] = 'teste'
+        t2[0x03] = "teste"
         # Assert
         assert auto_len_tag[0x07] == t1
         assert auto_len_tag[0x08] == t2
@@ -159,8 +250,8 @@ class TestParser:
 
     def test_auto_len_single_long_str(self, auto_len_tag):
         """Test single str array parser."""
-        v = b'teste' * (2 ** 15 + 5)
-        arr = b'\x03' + auto_len_tag.encode_length(v) + v
+        v = b"teste" * (2**15 + 5)
+        arr = b"\x03" + auto_len_tag.encode_length(v) + v
         auto_len_tag.parse_array(arr)
 
-        assert v.decode('ascii') == auto_len_tag[0x03]
+        assert v.decode("ascii") == auto_len_tag[0x03]
