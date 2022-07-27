@@ -214,11 +214,10 @@ class TLV:
             # Create line
             tag = str(hexlify(int(k).to_bytes(self.tag_size, byteorder=self.endian)), "ascii")
             if use_names:
-                tag_map = self.tag_map.get(k, None)
-                if map:
-                    name = tag_map.get(TLV.Config.Name, None)
-                    if name:
-                        tag = name
+                tag_map = self.tag_map.get(k, {})
+                name = tag_map.get(TLV.Config.Name, None)
+                if name:
+                    tag = name
             s += f'{" " * offset}{tag}: {value}\r\n'
         return s
 
