@@ -8,7 +8,7 @@ from .encoder import (
     Utf16Encoder,
     Utf32Encoder,
 )
-from .tlv import TLV, EmptyTLV
+from .old_tlv import TLV, EmptyTLV
 
 # Package version
 __version__ = "0.7.0"

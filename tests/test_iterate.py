@@ -1,6 +1,6 @@
 import pytest
 
-from uttlv.tlv import TLVIterator
+from uttlv.old_tlv import TLVIterator
 
 
 class TestIterator:
