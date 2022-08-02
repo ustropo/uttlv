@@ -35,5 +35,5 @@ class IntTag(BaseTag):
     def encode_value(self, value: Any) -> bytes:
         pass
 
-    def decode_value(self, arr: bytes) -> Any:
+    def decode_value(self, arr: bytes, length: int) -> Any:
         pass
