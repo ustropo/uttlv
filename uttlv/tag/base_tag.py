@@ -51,7 +51,7 @@ class BaseTag(abc.ABC):
         if error_msg and self.raise_if_invalid:
             raise ValidationException(error_msg)
 
-        return error_msg is not None
+        return error_msg is None
 
     def encode_length(self, value: bytes) -> bytes:
         """Encodes the length of this tag into a byte array.
@@ -114,7 +114,7 @@ class BaseTag(abc.ABC):
             len_size = 1 if data[0] < 0x80 else (data[0] - 0x80 + 1)
             # If we need more than 1 byte, than we need to skip the first one, since we just use it
             # to indicate how many bytes we need for the actual value.
-            offset = 0 if len_size == 1 else 0
+            offset = 0 if len_size == 1 else 1
 
         # Decode the code from the array
         length = int.from_bytes(data[offset:len_size], byteorder=self.endian)
