@@ -1,8 +1,7 @@
 import abc
 import math
-
 from dataclasses import dataclass
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 from uttlv.error import LengthSizeException, ValidationException
 
@@ -28,12 +27,12 @@ class BaseTag(abc.ABC):
     # Max size that a length value can be encoded into. If None, it is calculated automatically.
     length_size: int = None
 
-    def __validate_value(self, value: Any) -> str:
+    def __validate_value(self, value: Any) -> Optional[str]:
         """
         Validate if tag value is correct.
 
         :param value: value to be validated.
-        :returns: a message with the validation error, if any.
+        :returns: a message with the validation error, None if everything went well.
         """
         return None
 
@@ -73,7 +72,7 @@ class BaseTag(abc.ABC):
             # For this, if the value if less than 128, we use only one byte to encode it.
             if len(value) < 128:
                 return len(value).to_bytes(1, byteorder=self.endian)
-            # If greater than 128, we set the first bit to 1 (by adding 0x80) and use the rest of 
+            # If greater than 128, we set the first bit to 1 (by adding 0x80) and use the rest of
             # the first byte to indicate how many bytes we need for the length.
             # The actual length will be encoded in the rest of the required len size.
             return bytes((0x80 + required_len_size,)) + len(value).to_bytes(
@@ -99,7 +98,7 @@ class BaseTag(abc.ABC):
         """
         pass
 
-    def decode_length(self, data: bytes) -> Tuple(int, int):
+    def decode_length(self, data: bytes) -> Tuple[int, int]:
         """Decodes value from an array.
 
         :param data: original array with value.
@@ -107,7 +106,7 @@ class BaseTag(abc.ABC):
                   The second one is the actual length itself.
         """
         # If we don't have a required length size, we need to get this information from the
-        # array itself, so we use the inverse logic from the `:py:attr:BaseTag.encode_length` 
+        # array itself, so we use the inverse logic from the `:py:attr:BaseTag.encode_length`
         # method
         len_size = self.length_size
         offset = 0
@@ -117,17 +116,17 @@ class BaseTag(abc.ABC):
             # to indicate how many bytes we need for the actual value.
             offset = 0 if len_size == 1 else 0
 
-        # Decode the code from the array 
+        # Decode the code from the array
         length = int.from_bytes(data[offset:len_size], byteorder=self.endian)
         # return the values we found
-        return (len_size, length)
+        return len_size, length
 
     @abc.abstractmethod
     def decode_value(self, arr: bytes, length: int) -> Any:
         """Decodes array into a valid value.
 
         :param arr: byte-array with original value.
-        :param length: actual length to be analysed. 
+        :param length: actual length to be analysed.
         :returns: decoded value.
         """
         pass
