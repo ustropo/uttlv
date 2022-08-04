@@ -2,7 +2,7 @@ import unittest.mock as mock
 
 import pytest
 
-from uttlv.error import ValidationException
+from uttlv.error import LengthSizeException, ValidationException
 from uttlv.tag import BaseTag
 
 
@@ -67,3 +67,56 @@ class TestBaseTag:
             len_size, length = bt.decode_length(data)
             assert len_size == bt.length_size
             assert length == data[1]
+
+    def test_encode_length(self):
+        """Test to check if encode length works."""
+        with mock.patch.object(BaseTag, "__abstractmethods__", set()):
+            bt = BaseTag(10, "test", "string")
+
+            # Test with one length byte
+            data = b"test"
+            length = bt.encode_length(data)
+            assert length == b"\x04"
+
+            # Test with more than one length byte
+            data = ("a" * 200).encode("ascii")
+            length = bt.encode_length(data)
+            assert length == b"\x81\xC8"
+
+            # Test with custom length
+            bt.length_size = 2
+            data = b"test"
+            length = bt.encode_length(data)
+            assert length == b"\x00\x04"
+
+    def test_encode_length_exception(self):
+        """Test to check if encode_length method raises the correct exceptions."""
+        with mock.patch.object(BaseTag, "__abstractmethods__", set()):
+            bt = BaseTag(10, "test", "string")
+
+            # More than allowed
+            data = ("test" * 100000).encode("ascii")
+
+            with pytest.raises(LengthSizeException) as exc:
+                bt.encode_length(data)
+                assert "Max allowed length is" in str(exc)
+
+            bt.length_size = 2
+            with pytest.raises(LengthSizeException) as exc:
+                bt.encode_length(data)
+                assert "Data takes up" in str(exc)
+
+    def test_encode_decode_value(self):
+        """Test to check if encode/decode value are called."""
+        with mock.patch.object(BaseTag, "__abstractmethods__", set()):
+            bt = BaseTag(10, "test", "string")
+
+            # These methods are not implemented yet, so no need to worry.
+            # We are just calling so the coverage report is 100%
+            data = "test".encode("ascii")
+            orig = bt.decode_value(data, len(data))
+            assert not orig
+
+            data = "test"
+            orig = bt.encode_value(data)
+            assert not orig

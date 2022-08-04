@@ -22,10 +22,10 @@ class BaseTag(abc.ABC):
     endian: str = "big"  # Byte endianness to be used in encode and decode methods
     # Min size that value will occupy when encoded. If 0 or None, it is the minimum possible.
     value_min_size: int = None
-    # Max number of bytes allowed to encode a length
-    max_allowed_length_size: int = 8
     # Max size that a length value can be encoded into. If None, it is calculated automatically.
     length_size: int = None
+    # To avoid a big number, we set a limit of how many bytes we can actually encode.
+    max_allowed_length_size = 2
 
     def __validate_value(self, value: Any) -> Optional[str]:
         """
@@ -60,18 +60,21 @@ class BaseTag(abc.ABC):
         :returns: array with length encoded.
         """
         required_len_size = math.ceil(len(value).bit_length() / 8)
-        # To avoid a big number of data, we set a limit to the maximum length that we can encode.
-        if required_len_size > self.max_allowed_length_size:
-            raise LengthSizeException(
-                f"Max allowed value length is {2**(8*self.max_allowed_length_size - 1)-1} bytes, "
-                f"given value is {len(value)} bytes"
-            )
 
         # If nothing was set, it means we want to calculate the actual value we need.
         if not self.length_size:
             # For this, if the value if less than 128, we use only one byte to encode it.
             if len(value) < 128:
                 return len(value).to_bytes(1, byteorder=self.endian)
+
+            # To avoid a big number of data, we set a limit to the maximum length that we
+            # can encode.
+            if required_len_size > self.max_allowed_length_size:
+                raise LengthSizeException(
+                    f"Max allowed value length is {2 ** (8 * self.max_allowed_length_size) - 1} "
+                    f"bytes, given value is {len(value)} bytes"
+                )
+
             # If greater than 128, we set the first bit to 1 (by adding 0x80) and use the rest of
             # the first byte to indicate how many bytes we need for the length.
             # The actual length will be encoded in the rest of the required len size.
@@ -83,7 +86,7 @@ class BaseTag(abc.ABC):
         # necessary. If it's less, than we abort it and tell the user about it.
         if self.length_size < required_len_size:
             raise LengthSizeException(
-                f"{value} takes up {required_len_size} bytes, "
+                f"Data takes up {required_len_size} bytes, "
                 f"but length_size was defined as {self.length_size}"
             )
 
