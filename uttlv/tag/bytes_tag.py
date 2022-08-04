@@ -1,3 +1,6 @@
+"""Tag that handles byte-array content."""
+
+
 from dataclasses import dataclass
 
 from uttlv.error import LengthException
@@ -43,7 +46,7 @@ class BytesTag(BaseTag):
             raise LengthException(
                 f"Tag's value {self.code} should be length {length}, but {data_length} was provided"
             )
-        
+
         data = arr[:length]
         self.validate(data)
         # Nothing to do here.

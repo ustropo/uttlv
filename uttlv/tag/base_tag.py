@@ -1,3 +1,9 @@
+"""BaseTag class is used as a base class with common methods and attributes for each tag.
+
+A tag is class to handle configuration and encode/decode values for a given tag in a particular
+protocol.
+"""
+
 import abc
 import math
 from dataclasses import dataclass
@@ -99,7 +105,6 @@ class BaseTag(abc.ABC):
         :param value: original value to be encoded.
         :returns: byte-array with encoded value.
         """
-        pass
 
     def decode_length(self, data: bytes) -> Tuple[int, int]:
         """Decodes value from an array.
@@ -132,4 +137,3 @@ class BaseTag(abc.ABC):
         :param length: actual length to be analysed.
         :returns: decoded value.
         """
-        pass

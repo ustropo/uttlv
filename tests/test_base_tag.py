@@ -105,18 +105,3 @@ class TestBaseTag:
             with pytest.raises(LengthSizeException) as exc:
                 bt.encode_length(data)
                 assert "Data takes up" in str(exc)
-
-    def test_encode_decode_value(self):
-        """Test to check if encode/decode value are called."""
-        with mock.patch.object(BaseTag, "__abstractmethods__", set()):
-            bt = BaseTag(10, "test", "string")
-
-            # These methods are not implemented yet, so no need to worry.
-            # We are just calling so the coverage report is 100%
-            data = "test".encode("ascii")
-            orig = bt.decode_value(data, len(data))
-            assert not orig
-
-            data = "test"
-            orig = bt.encode_value(data)
-            assert not orig
