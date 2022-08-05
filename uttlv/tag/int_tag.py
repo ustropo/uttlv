@@ -12,9 +12,9 @@ class IntTag(BaseTag):
 
     min_value: int = None  # Min value that this Tag can assume
     max_value: int = None  # Max value that this Tag can assume
-    tag_type: str = "integer"
+    tag_type: str = "integer"  # Base type for this tag
 
-    def __validate_value(self, value: int) -> str:
+    def _validate_value(self, value: int) -> str:
         """Validate if tag value is correct.
 
         If `:py:attr:IntTag.min_value` is set, checks if value is greater or equal then it.

@@ -35,7 +35,7 @@ class TestBaseTag:
             msg = "Invalid value"
 
             bt = BaseTag(10, "test", "string", should_validate=True)
-            with mock.patch.object(bt, "_BaseTag__validate_value", return_value=msg):
+            with mock.patch.object(bt, "_validate_value", return_value=msg):
 
                 with pytest.raises(ValidationException) as exc:
                     assert not bt.validate("string")

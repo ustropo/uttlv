@@ -33,7 +33,7 @@ class BaseTag(abc.ABC):
     # To avoid a big number, we set a limit of how many bytes we can actually encode.
     max_allowed_length_size = 2
 
-    def __validate_value(self, value: Any) -> Optional[str]:
+    def _validate_value(self, value: Any) -> Optional[str]:
         """
         Validate if tag value is correct.
 
@@ -53,7 +53,7 @@ class BaseTag(abc.ABC):
         if not self.should_validate:
             return True
 
-        error_msg = self.__validate_value(value)
+        error_msg = self._validate_value(value)
         if error_msg and self.raise_if_invalid:
             raise ValidationException(error_msg)
 

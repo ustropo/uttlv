@@ -16,7 +16,7 @@ class BytesTag(BaseTag):
     max_length: int = None  # Max length valid for this array
     tag_type: str = "bytes"
 
-    def __validate_value(self, value: bytes) -> str:
+    def _validate_value(self, value: bytes) -> str:
         """Validate if tag value is correct.
 
         If `:py:attr:BytesTag.min_value` is set, checks if value's length is less than it.
