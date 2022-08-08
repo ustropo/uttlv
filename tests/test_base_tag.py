@@ -38,8 +38,8 @@ class TestBaseTag:
             with mock.patch.object(bt, "_validate_value", return_value=msg):
 
                 with pytest.raises(ValidationException) as exc:
-                    assert not bt.validate("string")
-                    assert str(exc) == msg
+                    bt.validate("string")
+                assert str(exc.value) == msg
 
                 bt.raise_if_invalid = False
                 assert not bt.validate("string")
@@ -99,9 +99,9 @@ class TestBaseTag:
 
             with pytest.raises(LengthSizeException) as exc:
                 bt.encode_length(data)
-                assert "Max allowed length is" in str(exc)
+            assert "Max allowed value length is" in str(exc.value)
 
             bt.length_size = 2
             with pytest.raises(LengthSizeException) as exc:
                 bt.encode_length(data)
-                assert "Data takes up" in str(exc)
+            assert "Data takes up" in str(exc.value)

@@ -1,3 +1,5 @@
+"""A TLV object with bytes as its type."""
+
 from dataclasses import dataclass
 from typing import Any, Tuple
 

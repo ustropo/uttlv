@@ -6,33 +6,33 @@ from uttlv.tlv import BaseTLV
 
 
 class TestBaseTag:
-    def test_create_abstract_exception(self):
+    def test_create_abstract_exception(self, bytes_tag):
         """Test to check if an attempt to create BaseTLV should fail"""
         with pytest.raises(TypeError):
-            BaseTLV(None)
+            BaseTLV(bytes_tag)
 
-    def test_get_value(self):
+    def test_get_value(self, bytes_tag):
         """Test if method value property is working."""
         with mock.patch.object(BaseTLV, "__abstractmethods__", set()):
             converted = 10
             real = b"\x0A"
             # TODO: change this to unknown tag
-            bt = BaseTLV(None, _real_value=real)
+            bt = BaseTLV(bytes_tag, _real_value=real)
 
             # It should return real value
             assert bt.value == real
 
             # It should return converted value
-            bt = BaseTLV(None, _real_value=real, _converted_value=converted)
+            bt = BaseTLV(bytes_tag, _real_value=real, _converted_value=converted)
             assert bt.value == converted
 
-    def test_set_value(self):
+    def test_set_value(self, bytes_tag):
         """Test to see if setter for value is working."""
         converted = 10
         real = b"\x0A"
 
         with mock.patch.object(BaseTLV, "__abstractmethods__", set()):
-            bt = BaseTLV(None)
+            bt = BaseTLV(bytes_tag)
 
             with mock.patch.object(bt, "_convert_value", return_value=(real, converted)):
                 assert not bt.value

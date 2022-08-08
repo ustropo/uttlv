@@ -41,7 +41,7 @@ class TestBytesTag:
 
         with pytest.raises(LengthException) as exc:
             bytes_tag.decode_value(data, 10)
-            assert "value should be" in str(exc)
+        assert "value should be" in str(exc)
 
     def test_validate_min_length(self, bytes_tag):
         """Test if min length is corrected validated."""
