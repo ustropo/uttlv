@@ -1,6 +1,7 @@
 import pytest
 
 from uttlv import TLV
+from uttlv.tag import BytesTag
 
 global_tag_map = {
     0x01: {TLV.Config.Type: int, TLV.Config.Name: "NUM_POINTS"},
@@ -77,3 +78,8 @@ def nested_tag(empty_nested_tag):
     tag.set_local_tag_map(nested_tag_map)
 
     yield tag
+
+
+@pytest.fixture(scope="function")
+def bytes_tag():
+    yield BytesTag(0x01, "DATA")

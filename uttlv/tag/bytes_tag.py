@@ -25,7 +25,7 @@ class BytesTag(BaseTag):
         :param value: value to be validated.
         :returns: an error message if validation fails, None otherwise
         """
-        msg = None
+        msg = ""
         if self.min_length is not None and len(value) < self.min_length:
             msg = f"The minimum size for this tag is {self.min_length}"
 
@@ -44,7 +44,7 @@ class BytesTag(BaseTag):
         data_length = len(arr)
         if data_length < length:
             raise LengthException(
-                f"Tag's value {self.code} should be length {length}, but {data_length} was provided"
+                f"Tag {self.code} value should be length {length}, but {data_length} was provided"
             )
 
         data = arr[:length]
