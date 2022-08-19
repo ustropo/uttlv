@@ -1,4 +1,4 @@
-# TLV Python Parser - Version 0.6.0
+# TLV Python Parser - Version 0.7.0
 
 A **Tag-Length-Value** (also known as **Type-Length-Value**) is an encoding scheme used for many protocols.
 
@@ -108,7 +108,7 @@ If you call `tree()`, the object will create a string with a _tree-like_ structu
 You can also add a dictionary to map a tag to its underline class type, so it's showed as correct type
 instead of a bytearray.
 
-The dictionay must have all keys as the tag values and its respective values as the class type of the 
+The dictionary must have all keys as the tag values and its respective values as the class type of the 
 tag:
 
 ```python
@@ -149,7 +149,7 @@ Nested tag maps can be configured by replacing the configured type with another 
   config = {
     0x01: {TLV.Config.Name: 'FIRST_NEST', TLV.Config.Type: {
       0x01: {TLV.Config.Name: 'SECOND_NEST', TLV.Config.Type: {
-        0x01: {TLV.Config.}
+        0x01: {TLV.Config.Name: 'THIRD_NEST', TLV.Config.Type: int}
       }}
     }}
   }
