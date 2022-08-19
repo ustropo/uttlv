@@ -56,17 +56,13 @@ class TLV:
 
     @property
     def tag_map(self) -> Dict:
-        if self._local_tag_map is not None:
-            return self._local_tag_map
-        else:
-            return TLV._global_tag_map
+        return self._local_tag_map or TLV._global_tag_map
 
     def __setitem__(self, key, value):
         real_key = self.__getkey__(key)
         self.check_key(real_key)
         self.check_value(value)
         self._items[real_key] = value
-        return None
 
     def __getitem__(self, key):
         real_key = self.__getkey__(key)
@@ -77,10 +73,10 @@ class TLV:
         if isinstance(key, int):
             return key
         if isinstance(key, str):
-            for k, v in self.tag_map.items():
-                name = v.get(TLV.Config.Name)
+            for tag, config in self.tag_map.items():
+                name = config.get(TLV.Config.Name)
                 if name and name == key:
-                    return k
+                    return tag
             raise AttributeError(f"Key {key} not found")
         # Invalid key type
         raise KeyError(f"Invalid key {str(key)}")
@@ -89,9 +85,10 @@ class TLV:
         return self.__getitem__(name)
 
     def __eq__(self, other):
-        b = self.to_byte_array()
-        a = other.to_byte_array()
-        return a == b
+        if not isinstance(other, TLV):
+            return False
+
+        return self.to_byte_array() == other.to_byte_array()
 
     def __hash__(self):
         return hash(self.to_byte_array())
@@ -124,12 +121,12 @@ class TLV:
         """
         # Check if the map has correct types
         al_types = ALLOWED_TYPES.keys()
-        for k, v in tag_map.items():
-            if not isinstance(v, dict):
+        for tag, config in tag_map.items():
+            if not isinstance(config, dict):
                 raise TypeError("Invalid tag config type")
-            t = v.get(TLV.Config.Type, "")
-            if t not in al_types:
-                raise AttributeError(f"Invalid tag type {t} for {k} -> {v}")
+            tag_config = config.get(TLV.Config.Type, "")
+            if tag_config not in al_types:
+                raise AttributeError(f"Invalid tag type {tag_config} for {tag} -> {config}")
         cls._global_tag_map = tag_map
 
     def set_local_tag_map(self, tag_map: Dict) -> None:
@@ -154,7 +151,7 @@ class TLV:
         :args:
             key: key int value.
         """
-        if not isinstance(key, int) and (key <= 0 or key >= 2**16):
+        if not isinstance(key, int) or (key < 0 or key >= 2**16):
             raise TypeError("Invalid key format.")
         return True
 
@@ -195,31 +192,33 @@ class TLV:
 
     def to_byte_array(self) -> bytes:
         """Translate all keys and values into an array of bytes."""
-        values = bytes()
-        for k, v in self._items.items():
-            frm = ALLOWED_TYPES.get(type(v))
-            value = frm().default(v)
+        data = bytes()
+        for tag, value in self._items.items():
+            formatter = ALLOWED_TYPES.get(type(value))
+            formatted_value = formatter().default(value)
             # Create array
-            values += int(k).to_bytes(self.tag_size, byteorder=self.endian)
-            values += self.encode_length(value)
-            values += value
-        return values
+            data += int(tag).to_bytes(self.tag_size, byteorder=self.endian)
+            data += self.encode_length(formatted_value)
+            data += formatted_value
+        return data
 
     def tree(self, offset: int = 0, use_names: bool = False) -> str:
         """Print a tree view of the object."""
-        s = "" if offset == 0 else "\r\n"
-        for k, v in self._items.items():
-            frm = ALLOWED_TYPES.get(type(v))
-            value = frm().to_string(v, offset, use_names)
+        tree_str = "" if offset == 0 else "\r\n"
+        for tag, value in self._items.items():
+            encoder = ALLOWED_TYPES.get(type(value))
+            encoded_value = encoder().to_string(value, offset, use_names)
             # Create line
-            tag = str(hexlify(int(k).to_bytes(self.tag_size, byteorder=self.endian)), "ascii")
+            encoded_tag = str(
+                hexlify(int(tag).to_bytes(self.tag_size, byteorder=self.endian)), "ascii"
+            )
             if use_names:
-                tag_map = self.tag_map.get(k, {})
+                tag_map = self.tag_map.get(tag, {})
                 name = tag_map.get(TLV.Config.Name, None)
-                if name:
-                    tag = name
-            s += f'{" " * offset}{tag}: {value}\r\n'
-        return s
+                encoded_tag = name or encoded_tag
+
+            tree_str += f'{" " * offset}{encoded_tag}: {encoded_value}\r\n'
+        return tree_str
 
     def decode_len_size(self, data: bytes) -> int:
         if data[0] < 0x80:
@@ -263,11 +262,11 @@ class TLV:
                     if type(tg_type) is dict:
                         value = NestedEncoder(tg_type).parse(value, self._new_equivalent_tlv())
                     else:
-                        frm = ALLOWED_TYPES.get(tg_type)
-                        if frm is not None:
-                            value = frm().parse(value, self._new_equivalent_tlv())
+                        formatter = ALLOWED_TYPES.get(tg_type)
+                        if formatter is not None:
+                            value = formatter().parse(value, self._new_equivalent_tlv())
             # Set value
-            self.__setitem__(tag, value)
+            self[tag] = value
         # Done parsing
         return True
 
@@ -289,15 +288,14 @@ class EmptyTLV(TLV):
         return value
 
     def tree(self, offset: int = 0, use_names: bool = False) -> str:
-        s = "" if offset == 0 else "\r\n"
+        tree_str = "" if offset == 0 else "\r\n"
         tag = str(hexlify(int(self.tag).to_bytes(self.tag_size, byteorder="big")), "ascii")
         if use_names:
-            tag_map = TLV.tag_map.get(self.tag, None)
-            if tag_map:
-                name = tag_map.get("name", None)
-                tag = tag if not name else name
-        s += f'{" " * offset}{tag}\r\n'
-        return s
+            tag_map = TLV.tag_map.get(self.tag, {})
+            name = tag_map.get("name", None)
+            tag = name or tag
+        tree_str += f'{" " * offset}{tag}\r\n'
+        return tree_str
 
 
 class TLVIterator:
