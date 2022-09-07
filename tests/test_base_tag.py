@@ -10,12 +10,12 @@ class TestBaseTag:
     def test_create_abstract_exception(self):
         """Test to check if an attempt to create BaseTag should fail"""
         with pytest.raises(TypeError):
-            BaseTag(10, "test", "string")
+            BaseTag(10, "test", str)
 
     def test_validate_disabled(self):
         """Test to check if validate method is called correctly when disabled."""
         with mock.patch.object(BaseTag, "__abstractmethods__", set()):
-            bt = BaseTag(10, "test", "string")
+            bt = BaseTag(10, "test", str)
 
             # It should returns true always
             assert not bt.should_validate
@@ -24,7 +24,7 @@ class TestBaseTag:
     def test_validate_enabled(self):
         """Test to check if validate method is called correctly."""
         with mock.patch.object(BaseTag, "__abstractmethods__", set()):
-            bt = BaseTag(10, "test", "string", should_validate=True)
+            bt = BaseTag(10, "test", str, should_validate=True)
 
             assert bt.validate("string")
 
@@ -34,7 +34,7 @@ class TestBaseTag:
             # Mocks valid reason returns
             msg = "Invalid value"
 
-            bt = BaseTag(10, "test", "string", should_validate=True)
+            bt = BaseTag(10, "test", str, should_validate=True)
             with mock.patch.object(bt, "_validate_value", return_value=msg):
 
                 with pytest.raises(ValidationException) as exc:
@@ -44,10 +44,20 @@ class TestBaseTag:
                 bt.raise_if_invalid = False
                 assert not bt.validate("string")
 
+    def test_validate_invalid_type(self):
+        """Test validate method with invalid type."""
+        with mock.patch.object(BaseTag, "__abstractmethods__", set()):
+            bt = BaseTag(10, "test", str, should_validate=True)
+
+            with pytest.raises(TypeError) as exc:
+                bt.validate(10)
+
+            assert str(exc.value) == "This tag expects str. Received int instead"
+
     def test_decode_length(self):
         """Test to check if decode length works."""
         with mock.patch.object(BaseTag, "__abstractmethods__", set()):
-            bt = BaseTag(10, "test", "string")
+            bt = BaseTag(10, "test", str)
 
             # Test with one length byte
             data = bytes([10])
@@ -71,7 +81,7 @@ class TestBaseTag:
     def test_encode_length(self):
         """Test to check if encode length works."""
         with mock.patch.object(BaseTag, "__abstractmethods__", set()):
-            bt = BaseTag(10, "test", "string")
+            bt = BaseTag(10, "test", str)
 
             # Test with one length byte
             data = b"test"
@@ -92,7 +102,7 @@ class TestBaseTag:
     def test_encode_length_exception(self):
         """Test to check if encode_length method raises the correct exceptions."""
         with mock.patch.object(BaseTag, "__abstractmethods__", set()):
-            bt = BaseTag(10, "test", "string")
+            bt = BaseTag(10, "test", str)
 
             # More than allowed
             data = ("test" * 100000).encode("ascii")

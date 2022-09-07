@@ -23,7 +23,7 @@ class BaseTag(abc.ABC):
 
     code: int  # Tag's code
     name: str  # Tag's name
-    tag_type: str  # Type of the value of the tag
+    tag_type: type  # Type of the value of the tag
     should_validate: bool = False  # Whether or not to validate the tag's value
     raise_if_invalid: bool = True  # If validation fails and this is True, it raises an exception
     endian: Endianness = Endianness.BIG  # Byte endianness to be used in encode and decode methods
@@ -51,6 +51,11 @@ class BaseTag(abc.ABC):
         :returns: True if valid. If `:py:attr:BaseTag.raise_if_invalid` is True, then an exception
                   is raised if the validation fails.
         """
+        if not isinstance(value, self.tag_type):
+            raise TypeError(
+                f"This tag expects {self.tag_type.__name__}. Received {value.__class__.__name__} instead"
+            )
+
         if not self.should_validate:
             return True
 
@@ -131,10 +136,9 @@ class BaseTag(abc.ABC):
         return len_size, length
 
     @abc.abstractmethod
-    def decode_value(self, arr: bytes, length: int) -> Any:
+    def decode_value(self, arr: bytes) -> Any:
         """Decodes array into a valid value.
 
         :param arr: byte-array with original value.
-        :param length: actual length to be analysed.
         :returns: decoded value.
         """

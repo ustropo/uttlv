@@ -3,8 +3,6 @@
 
 from dataclasses import dataclass
 
-from uttlv.error import LengthException
-
 from .base_tag import BaseTag
 
 
@@ -14,7 +12,7 @@ class BytesTag(BaseTag):
 
     min_length: int = None  # Min length valid for this array
     max_length: int = None  # Max length valid for this array
-    tag_type: str = "bytes"
+    tag_type: type = bytes
 
     def _validate_value(self, value: bytes) -> str:
         """Validate if tag value is correct.
@@ -39,15 +37,8 @@ class BytesTag(BaseTag):
         # Nothing to do here.
         return value
 
-    def decode_value(self, arr: bytes, length: int) -> bytes:
+    def decode_value(self, arr: bytes) -> bytes:
         # We check if the value of the array has the minimum we expect for it.
-        data_length = len(arr)
-        if data_length < length:
-            raise LengthException(
-                f"Tag {self.code} value should be length {length}, but {data_length} was provided"
-            )
-
-        data = arr[:length]
-        self.validate(data)
+        self.validate(arr)
         # Nothing to do here.
-        return data
+        return arr

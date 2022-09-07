@@ -12,7 +12,8 @@ class IntTag(BaseTag):
 
     min_value: int = None  # Min value that this Tag can assume
     max_value: int = None  # Max value that this Tag can assume
-    tag_type: str = "integer"  # Base type for this tag
+    bytes_length: int = 4  # How many bytes this value will assume in the byte array
+    tag_type: type = int  # Base type for this tag
 
     def _validate_value(self, value: int) -> str:
         """Validate if tag value is correct.
@@ -32,8 +33,13 @@ class IntTag(BaseTag):
 
         return msg
 
-    def encode_value(self, value: Any) -> bytes:
-        pass
+    def encode_value(self, value: int) -> bytes:
+        self.validate(value)
 
-    def decode_value(self, arr: bytes, length: int) -> Any:
-        pass
+        return value.to_bytes(self.bytes_length, self.endian.value)
+
+    def decode_value(self, arr: bytes) -> Any:
+        value = int.from_bytes(arr, self.endian.value)
+        self.validate(value)
+
+        return value

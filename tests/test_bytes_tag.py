@@ -1,7 +1,4 @@
-import pytest
-
 from uttlv.const import Endianness
-from uttlv.error import LengthException
 
 
 class TestBytesTag:
@@ -11,7 +8,7 @@ class TestBytesTag:
         """Test basic class creation and basic attributes are correct."""
         assert bytes_tag.code == 0x01
         assert bytes_tag.name == "DATA"
-        assert bytes_tag.tag_type == "bytes"
+        assert bytes_tag.tag_type == bytes
         assert not bytes_tag.should_validate
         assert bytes_tag.raise_if_invalid
         assert bytes_tag.endian == Endianness.BIG
@@ -33,15 +30,7 @@ class TestBytesTag:
         data = b"\x00\x01\x02"
 
         # The bytes tag does nothing with the value, so it should be the same
-        assert bytes_tag.decode_value(data, len(data)) == data
-
-    def test_decode_value_invalid_length(self, bytes_tag):
-        """Test if decode value raises an exception when invalid length."""
-        data = b"\x01\x02\x03"
-
-        with pytest.raises(LengthException) as exc:
-            bytes_tag.decode_value(data, 10)
-        assert "value should be" in str(exc)
+        assert bytes_tag.decode_value(data) == data
 
     def test_validate_min_length(self, bytes_tag):
         """Test if min length is corrected validated."""

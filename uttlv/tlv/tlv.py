@@ -1,35 +1,20 @@
 """BaseTLV class with common methods used in all package."""
-
-import abc
 from dataclasses import dataclass
-from typing import Any, Tuple
+from typing import Any
 
 from uttlv.tag import BaseTag
 
 
 @dataclass
-class BaseTLV(abc.ABC):
+class TLV:
     """Base class for TLV (Tag-Length-Value) object."""
 
-    # Tag object that this object refer`s to
+    # Tag object that this object refers to
     tag: BaseTag
     # Original byte-array value
     _real_value: bytes = None
     # Decoded value - real representation
     _converted_value: Any = None
-
-    @abc.abstractmethod
-    def _convert_value(self, new_value: Any) -> Tuple[Any, bytes]:
-        """Tries to encode/decode value.
-
-        If `new_value` is of `bytes` type, it will try to decode it to the TLV associated type.
-        If `new_value` is of another type, it will try to encode it to `bytes`.
-
-        :params new_value: value that we are trying to set this TLV.
-        :returns: a tuple with two values. First is the converted_value, with the type specified by
-                  `:py:attr:BaseTLV.tag`. Second is the real_value, the value as encoded in bytes.
-        :raises TypeError: invalid or unknown type for this TLV.
-        """
 
     @property
     def value(self) -> Any:
@@ -39,10 +24,7 @@ class BaseTLV(abc.ABC):
         :returns: :py:attr:`BaseTLV._converted_value` if available.
                   Otherwise, it returns  :py:attr:`BaseTLV._real_value`.
         """
-        if self._converted_value is not None:
-            return self._converted_value
-
-        return self._real_value
+        return self._real_value if self._converted_value is None else self._converted_value
 
     @value.setter
     def value(self, new_value: Any) -> None:
@@ -59,4 +41,17 @@ class BaseTLV(abc.ABC):
 
         :param new_value: new value of this TLV object
         """
-        self._real_value, self._converted_value = self._convert_value(new_value)
+        # TODO: add lazy conversion
+        if isinstance(new_value, bytes):
+            real_value = new_value
+            converted_value = self.tag.decode_value(new_value)
+        elif isinstance(new_value, self.tag.tag_type):
+            real_value = self.tag.encode_value(new_value)
+            converted_value = new_value
+        else:
+            raise TypeError(
+                f"Invalid type {new_value.__class__.__name__}. Expected bytes or {self.tag.tag_type.__name__}"
+            )
+
+        self._real_value = real_value
+        self._converted_value = converted_value

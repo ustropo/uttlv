@@ -1,8 +1,7 @@
 import pytest
 
 from uttlv import TLV
-from uttlv.tag import BytesTag
-from uttlv.tlv import BytesTLV
+from uttlv.tag import BytesTag, IntTag
 
 global_tag_map = {
     0x01: {TLV.Config.Type: int, TLV.Config.Name: "NUM_POINTS"},
@@ -87,5 +86,5 @@ def bytes_tag():
 
 
 @pytest.fixture(scope="function")
-def bytes_tlv(bytes_tag):
-    yield BytesTLV(bytes_tag)
+def int_tag():
+    yield IntTag(0x02, "NUM_POINTS")
