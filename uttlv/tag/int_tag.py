@@ -1,5 +1,8 @@
+import math
 from dataclasses import dataclass
 from typing import Any
+
+from uttlv.error import LengthException
 
 from .base_tag import BaseTag
 
@@ -10,10 +13,15 @@ class IntTag(BaseTag):
     Class that represents an integer tag.
     """
 
-    min_value: int = None  # Min value that this Tag can assume
-    max_value: int = None  # Max value that this Tag can assume
-    bytes_length: int = 4  # How many bytes this value will assume in the byte array
-    tag_type: type = int  # Base type for this tag
+    # Min value that this Tag can assume
+    min_value: int = None
+    # Max value that this Tag can assume
+    max_value: int = None
+    # How many bytes this value will assume in the byte array.
+    # If 0 or None, this will use the minimum amount required to represent in bytes format
+    bytes_length: int = 0
+    # Base type for this tag
+    tag_type: type = int
 
     def _validate_value(self, value: int) -> str:
         """Validate if tag value is correct.
@@ -36,7 +44,17 @@ class IntTag(BaseTag):
     def encode_value(self, value: int) -> bytes:
         self.validate(value)
 
-        return value.to_bytes(self.bytes_length, self.endian.value)
+        # We check if we have enough room to encode this value
+        required_len = math.ceil(value.bit_length() / 8)
+        if self.bytes_length and 0 < self.bytes_length < required_len:
+            raise LengthException(
+                f"{value} needs {required_len} bytes, but this tag accepts only {self.bytes_length}"
+            )
+
+        # If bytes_length is 0 (or None), we use the minimum amount of bytes to encode it
+        # Otherwise, just use the size its defined for this tag
+        required_len = self.bytes_length or required_len
+        return value.to_bytes(required_len, self.endian.value)
 
     def decode_value(self, arr: bytes) -> Any:
         value = int.from_bytes(arr, self.endian.value)

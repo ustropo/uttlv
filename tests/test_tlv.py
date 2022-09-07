@@ -7,7 +7,7 @@ class TestTLV:
     def test_get_value(self, bytes_tag):
         """Test if method value property is working."""
         converted = 10
-        real = b"\x00\x00\x00\x0A"
+        real = b"\x0A"
         # TODO: change this to unknown tag
         bt = TLV(bytes_tag, _real_value=real)
 
@@ -21,7 +21,7 @@ class TestTLV:
     def test_set_value_with_converted(self, int_tag):
         """Test to see if setter works with converted value."""
         converted = 10
-        real = b"\x00\x00\x00\x0A"
+        real = b"\x0A"
 
         bt = TLV(int_tag)
         assert not bt.value
