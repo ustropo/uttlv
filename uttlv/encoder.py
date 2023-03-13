@@ -4,6 +4,9 @@ from binascii import hexlify
 
 
 class DefaultEncoder(object):
+    def __init__(self, endian:str = "big"):
+        self.endian=endian
+
     def default(self, obj):
         try:
             return obj.to_byte_array()
@@ -27,9 +30,12 @@ class DefaultEncoder(object):
 
 
 class IntEncoder(DefaultEncoder):
+    def __init__(self, endian="big"):
+        super().__init__(endian)
+
     def default(self, obj):
         if isinstance(obj, int):
-            return obj.to_bytes(4, byteorder="big")
+            return obj.to_bytes(4, byteorder=self.endian)
         return super().default(obj)
 
     def parse(self, obj, _cls):
