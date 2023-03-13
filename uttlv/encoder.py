@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from binascii import hexlify
-
+import struct
 
 class DefaultEncoder(object):
     def __init__(self, endian:str = "big"):
@@ -41,6 +41,24 @@ class IntEncoder(DefaultEncoder):
     def parse(self, obj, _cls):
         return int.from_bytes(obj, byteorder=self.endian)
 
+
+class FloatEncoder(DefaultEncoder):
+    def __init__(self, endian="big"):
+        super().__init__(endian)
+
+    def default(self, obj):
+        if isinstance(obj, float):
+            if (self.endian=="big"):
+                return bytearray(struct.pack(">f", obj))
+            elif (self.endian=="little"):
+                return bytearray(struct.pack("<f", obj))
+        return super().default(obj)
+
+    def parse(self, obj, _cls):
+        if (self.endian=="big"):
+            return struct.unpack(">f", obj)[0]
+        elif (self.endian=="little"):
+            return struct.unpack("<f", obj)[0]
 
 class AsciiEncoder(DefaultEncoder):
     def default(self, obj):

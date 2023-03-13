@@ -4,6 +4,7 @@ from .encoder import (
     BytesEncoder,
     DefaultEncoder,
     IntEncoder,
+    FloatEncoder,
     Utf8Encoder,
     Utf16Encoder,
     Utf32Encoder,
