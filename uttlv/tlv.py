@@ -264,7 +264,8 @@ class TLV:
                     else:
                         formatter = ALLOWED_TYPES.get(tg_type)
                         if formatter is not None:
-                            value = formatter().parse(value, self._new_equivalent_tlv())
+                            formatter_instance = formatter(self.endian)
+                            value = formatter_instance.parse(value, self._new_equivalent_tlv())
             # Set value
             self[tag] = value
         # Done parsing
@@ -282,14 +283,14 @@ class EmptyTLV(TLV):
         raise TypeError("Invalid argument")
 
     def to_byte_array(self) -> bytes:
-        value = int(self.tag).to_bytes(self.tag_size, byteorder="big")
+        value = int(self.tag).to_bytes(self.tag_size, byteorder=self.endian)
         len_size = self.len_size or 1
-        value += int(0).to_bytes(len_size, byteorder="big")
+        value += int(0).to_bytes(len_size, byteorder=self.endian)
         return value
 
     def tree(self, offset: int = 0, use_names: bool = False) -> str:
         tree_str = "" if offset == 0 else "\r\n"
-        tag = str(hexlify(int(self.tag).to_bytes(self.tag_size, byteorder="big")), "ascii")
+        tag = str(hexlify(int(self.tag).to_bytes(self.tag_size, byteorder=self.endian)), "ascii")
         if use_names:
             tag_map = TLV.tag_map.get(self.tag, {})
             name = tag_map.get("name", None)
