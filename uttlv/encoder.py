@@ -39,7 +39,7 @@ class IntEncoder(DefaultEncoder):
         return super().default(obj)
 
     def parse(self, obj, _cls):
-        return int.from_bytes(obj, byteorder="big")
+        return int.from_bytes(obj, byteorder=self.endian)
 
 
 class AsciiEncoder(DefaultEncoder):
