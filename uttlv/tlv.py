@@ -152,7 +152,7 @@ class TLV:
         :args:
             key: key int value.
         """
-        if not isinstance(key, int) or (key < 0 or key >= 2**16):
+        if not isinstance(key, int) or (key < 0 or key >= 2**(self.tag_size*8)):
             raise TypeError("Invalid key format.")
         return True
 
