@@ -203,7 +203,7 @@ class TLV:
             data += formatted_value
         return data
 
-    def tree(self, offset: int = 0, use_names: bool = False) -> str:
+    def tree(self, offset: int = 0, use_names: bool = False, show_size: bool = False) -> str:
         """Print a tree view of the object."""
         tree_str = "" if offset == 0 else "\r\n"
         for tag, value in self._items.items():
@@ -218,7 +218,14 @@ class TLV:
                 name = tag_map.get(TLV.Config.Name, None)
                 encoded_tag = name or encoded_tag
 
-            tree_str += f'{" " * offset}{encoded_tag}: {encoded_value}\r\n'
+            if(len(encoded_value) > 300):
+                encoded_value = "*trimmed*"
+
+            if show_size:
+                formatted_value = encoder().default(value)
+                tree_str += f'{" " * offset}{encoded_tag} (len:{len(formatted_value)}):{encoded_value}\r\n'
+            else:
+                tree_str += f'{" " * offset}{encoded_tag}: {encoded_value}\r\n'
         return tree_str
 
     def decode_len_size(self, data: bytes) -> int:
