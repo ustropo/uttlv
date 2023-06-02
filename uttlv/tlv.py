@@ -172,7 +172,7 @@ class TLV:
             encoder = ALLOWED_TYPES.get(type(value))
             formatted_value = encoder().default(value)
             lengths[tag] = len(formatted_value)
-        return length
+        return lengths
 
     def encode_length(self, value: bytes) -> bytes:
         """Translate the length of value into an array."""
