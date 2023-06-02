@@ -166,6 +166,14 @@ class TLV:
             raise TypeError(f"Invalid value type format {type(value)}.")
         return True
 
+    def get_lengths(self):
+        lengths={}
+        for tag, value in self._items.items():
+            encoder = ALLOWED_TYPES.get(type(value))
+            formatted_value = encoder().default(value)
+            lengths[tag] = len(formatted_value)
+        return length
+
     def encode_length(self, value: bytes) -> bytes:
         """Translate the length of value into an array."""
         required_len_size = math.ceil(len(value).bit_length() / 8)
