@@ -4,7 +4,7 @@ from binascii import hexlify
 
 
 class DefaultEncoder(object):
-    def default(self, obj):
+    def default(self, obj, _cls):
         try:
             return obj.to_byte_array()
         except AttributeError:
@@ -27,17 +27,17 @@ class DefaultEncoder(object):
 
 
 class IntEncoder(DefaultEncoder):
-    def default(self, obj):
+    def default(self, obj, _cls):
         if isinstance(obj, int):
-            return obj.to_bytes(4, byteorder="big")
+            return obj.to_bytes(4, byteorder=_cls.endian)
         return super().default(obj)
 
     def parse(self, obj, _cls):
-        return int.from_bytes(obj, byteorder="big")
+        return int.from_bytes(obj, byteorder=_cls.endian)
 
 
 class AsciiEncoder(DefaultEncoder):
-    def default(self, obj):
+    def default(self, obj, _cls):
         if isinstance(obj, str):
             return obj.encode("ascii")
         return super().default(obj)
@@ -47,7 +47,7 @@ class AsciiEncoder(DefaultEncoder):
 
 
 class BytesEncoder(DefaultEncoder):
-    def default(self, obj):
+    def default(self, obj, _cls):
         if isinstance(obj, bytes):
             return obj
         return super().default(obj)
@@ -60,7 +60,7 @@ class BytesEncoder(DefaultEncoder):
 
 
 class Utf8Encoder(DefaultEncoder):
-    def default(self, obj):
+    def default(self, obj, _cls):
         if isinstance(obj, str):
             return obj.encode("utf8")
         return super().default(obj)
@@ -70,7 +70,7 @@ class Utf8Encoder(DefaultEncoder):
 
 
 class Utf16Encoder(DefaultEncoder):
-    def default(self, obj):
+    def default(self, obj, _cls):
         if isinstance(obj, str):
             return obj.encode("utf16")
         return super().default(obj)
@@ -80,7 +80,7 @@ class Utf16Encoder(DefaultEncoder):
 
 
 class Utf32Encoder(DefaultEncoder):
-    def default(self, obj):
+    def default(self, obj, _cls):
         if isinstance(obj, str):
             return obj.encode("utf32")
         return super().default(obj)

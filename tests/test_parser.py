@@ -11,6 +11,13 @@ class TestParser:
 
         assert tag[0x01] == 16
 
+    def test_little_end(self, tag_little):
+        """Test single int array parser."""
+        arr = [0x01, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00]
+        tag_little.parse_array(arr)
+
+        assert tag_little[0x01] == 16
+
     def test_single_str(self, tag):
         """Test single str array parser."""
         arr = [0x03, 0x00, 0x05, 0x74, 0x65, 0x73, 0x74, 0x65]
