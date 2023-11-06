@@ -244,8 +244,7 @@ class TLV:
             # Len value
             aux = aux[self.tag_size :]
             len_size = self.len_size or self.decode_len_size(aux)
-            offset = 0 if len_size == 1 else 1
-            length = int.from_bytes(aux[offset:len_size], byteorder=self.endian)
+            length = int.from_bytes(aux[:len_size], byteorder=self.endian)
             # Value
             aux = aux[len_size:]
             value = aux[:length]
