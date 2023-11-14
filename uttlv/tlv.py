@@ -195,7 +195,7 @@ class TLV:
         data = bytes()
         for tag, value in self._items.items():
             formatter = ALLOWED_TYPES.get(type(value))
-            formatted_value = formatter().default(value)
+            formatted_value = formatter().default(value, self)
             # Create array
             data += int(tag).to_bytes(self.tag_size, byteorder=self.endian)
             data += self.encode_length(formatted_value)
@@ -244,8 +244,7 @@ class TLV:
             # Len value
             aux = aux[self.tag_size :]
             len_size = self.len_size or self.decode_len_size(aux)
-            offset = 0 if len_size == 1 else 1
-            length = int.from_bytes(aux[offset:len_size], byteorder=self.endian)
+            length = int.from_bytes(aux[:len_size], byteorder=self.endian)
             # Value
             aux = aux[len_size:]
             value = aux[:length]

@@ -39,6 +39,11 @@ def tag(apply_global_map):
 
 
 @pytest.fixture(scope="function")
+def tag_little(apply_global_map):
+    yield TLV(len_size=2, endian='little')
+
+
+@pytest.fixture(scope="function")
 def auto_len_tag(apply_global_map):
     yield TLV()
 

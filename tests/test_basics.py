@@ -13,6 +13,15 @@ class TestBasic:
         # Check value
         assert exp == v
 
+    def test_int_one_little(self, tag_little):
+        """Test if a TLV object is corrected set to an array"""
+        tag_little[0x01] = 10
+        # Create an array
+        v = list(tag_little.to_byte_array())
+        exp = [0x01, 0x04, 0x00, 0x0A, 0x00, 0x00, 0x00]
+        # Check value
+        assert exp == v
+
     def test_int_nested(self, tag):
         """Test more than one int tag in an array."""
         tag[0x01] = 10
