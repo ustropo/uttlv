@@ -26,10 +26,40 @@ class DefaultEncoder(object):
         return obj
 
 
-class IntEncoder(DefaultEncoder):
+class Int8Encoder(DefaultEncoder):
+    def default(self, obj, _cls):
+        if isinstance(obj, int):
+            return obj.to_bytes(1, byteorder=_cls.endian)
+        return super().default(obj)
+
+    def parse(self, obj, _cls):
+        return int.from_bytes(obj, byteorder=_cls.endian)
+
+
+class Int16Encoder(DefaultEncoder):
+    def default(self, obj, _cls):
+        if isinstance(obj, int):
+            return obj.to_bytes(2, byteorder=_cls.endian)
+        return super().default(obj)
+
+    def parse(self, obj, _cls):
+        return int.from_bytes(obj, byteorder=_cls.endian)
+
+
+class Int32Encoder(DefaultEncoder):
     def default(self, obj, _cls):
         if isinstance(obj, int):
             return obj.to_bytes(4, byteorder=_cls.endian)
+        return super().default(obj)
+
+    def parse(self, obj, _cls):
+        return int.from_bytes(obj, byteorder=_cls.endian)
+
+
+class Int64Encoder(DefaultEncoder):
+    def default(self, obj, _cls):
+        if isinstance(obj, int):
+            return obj.to_bytes(8, byteorder=_cls.endian)
         return super().default(obj)
 
     def parse(self, obj, _cls):

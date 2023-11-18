@@ -1,4 +1,4 @@
-from uttlv import TLV, EmptyTLV
+from uttlv import TLV, EmptyTLV, Int8, Int16, Int64
 
 
 class TestBasic:
@@ -10,6 +10,60 @@ class TestBasic:
         # Create an array
         v = list(tag.to_byte_array())
         exp = [0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0A]
+        # Check value
+        assert exp == v
+
+    def test_int8_one(self, tag):
+        """Test if a TLV object is corrected set to an array"""
+        tag[0x01] = Int8(0xde)
+        # Create an array
+        v = list(tag.to_byte_array())
+        exp = [0x01, 0x00, 0x01, 0xde]
+        # Check value
+        assert exp == v
+
+    def test_int16_one(self, tag):
+        """Test if a TLV object is corrected set to an array"""
+        tag[0x01] = Int16(0xdead)
+        # Create an array
+        v = list(tag.to_byte_array())
+        exp = [0x01, 0x00, 0x02, 0xde, 0xad]
+        # Check value
+        assert exp == v
+
+    def test_int64_one(self, tag):
+        """Test if a TLV object is corrected set to an array"""
+        tag[0x01] = Int64(0xdeadbeefdeadbeef)
+        # Create an array
+        v = list(tag.to_byte_array())
+        exp = [0x01, 0x00, 0x08, 0xde, 0xad, 0xbe, 0xef, 0xde, 0xad, 0xbe, 0xef]
+        # Check value
+        assert exp == v
+
+    def test_int8_little(self, tag_little):
+        """Test if a TLV object is corrected set to an array"""
+        tag_little[0x01] = Int8(0xad)
+        # Create an array
+        v = list(tag_little.to_byte_array())
+        exp = [0x01, 0x01, 0x00, 0xad]
+        # Check value
+        assert exp == v
+
+    def test_int16_little(self, tag_little):
+        """Test if a TLV object is corrected set to an array"""
+        tag_little[0x01] = Int16(0xdead)
+        # Create an array
+        v = list(tag_little.to_byte_array())
+        exp = [0x01, 0x02, 0x00, 0xad, 0xde]
+        # Check value
+        assert exp == v
+
+    def test_int64_little(self, tag_little):
+        """Test if a TLV object is corrected set to an array"""
+        tag_little[0x01] = Int64(0xdeadbeefdeadbeef)
+        # Create an array
+        v = list(tag_little.to_byte_array())
+        exp = [0x01, 0x08, 0x00, 0xef, 0xbe, 0xad, 0xde, 0xef, 0xbe, 0xad, 0xde]
         # Check value
         assert exp == v
 

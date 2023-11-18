@@ -11,12 +11,54 @@ class TestParser:
 
         assert tag[0x01] == 16
 
+    def test_int8(self, tag):
+        """Test single int 8-bit array parser."""
+        arr = [0x01, 0x00, 0x01, 0xad]
+        tag.parse_array(arr)
+
+        assert tag[0x01] == 0xad
+
+    def test_int16(self, tag):
+        """Test single int 16-bit array parser."""
+        arr = [0x01, 0x00, 0x02, 0xde, 0xad]
+        tag.parse_array(arr)
+
+        assert tag[0x01] == 0xdead
+
+    def test_int64(self, tag):
+        """Test single int 64-bit array parser."""
+        arr = [0x01, 0x00, 0x08, 0xde, 0xad, 0xbe, 0xef, 0xde, 0xad, 0xbe, 0xef]
+        tag.parse_array(arr)
+
+        assert tag[0x01] == 0xdeadbeefdeadbeef
+
     def test_little_end(self, tag_little):
-        """Test single int array parser."""
+        """Test single int array parser from little endian."""
         arr = [0x01, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00]
         tag_little.parse_array(arr)
 
         assert tag_little[0x01] == 16
+
+    def test_int8_little(self, tag_little):
+        """Test single int 8-bit array parser from little endian."""
+        arr = [0x01, 0x01, 0x00, 0xde]
+        tag_little.parse_array(arr)
+
+        assert tag_little[0x01] == 0xde
+
+    def test_int16_little(self, tag_little):
+        """Test single int 16-bit array parser from little endian."""
+        arr = [0x01, 0x02, 0x00, 0xad, 0xde]
+        tag_little.parse_array(arr)
+
+        assert tag_little[0x01] == 0xdead
+
+    def test_int64_little(self, tag_little):
+        """Test single int 64-bit array parser from little endian."""
+        arr = [0x01, 0x08, 0x00, 0xef, 0xbe, 0xad, 0xde, 0xef, 0xbe, 0xad, 0xde]
+        tag_little.parse_array(arr)
+
+        assert tag_little[0x01] == 0xdeadbeefdeadbeef
 
     def test_single_str(self, tag):
         """Test single str array parser."""

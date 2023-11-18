@@ -8,7 +8,10 @@ from typing import Any, Dict
 from .encoder import (
     BytesEncoder,
     DefaultEncoder,
-    IntEncoder,
+    Int8Encoder,
+    Int16Encoder,
+    Int32Encoder,
+    Int64Encoder,
     NestedEncoder,
     Utf8Encoder,
 )
@@ -309,9 +312,24 @@ class TLVIterator:
         return next(self._it)
 
 
+class Int8(int):
+    pass
+
+
+class Int16(int):
+    pass
+
+
+class Int64(int):
+    pass
+
+
 ALLOWED_TYPES = {
     TLV: DefaultEncoder,
-    int: IntEncoder,
+    Int8: Int8Encoder,
+    Int16: Int16Encoder,
+    int: Int32Encoder,
+    Int64: Int64Encoder,
     bytes: BytesEncoder,
     str: Utf8Encoder,
 }
