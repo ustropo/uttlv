@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "uttlv"
-version = "0.7.0"
+version = "0.7.1"
 description = "Python Library for TLV objects"
 authors = ["Fernando Cleber de Souza <cleberdsouza@gmail.com>"]
 license = "MIT"
