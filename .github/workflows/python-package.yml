@@ -3,7 +3,7 @@
 # annoying.
 on:
   push:
-    branches: [main]
+    branches: [master dev]
   pull_request:
 
 jobs:
