@@ -304,3 +304,10 @@ class TestParser:
         auto_len_tag.parse_array(arr)
 
         assert v.decode("ascii") == auto_len_tag[0x03]
+
+    def test_auto_len_multi_byte_read(self, auto_len_tag):
+        """Test auto length decoder with multi-byte length"""
+        arr = [0x01, 0x81, 0x01, 0x01, 0x02, 0x01, 0x02]
+        auto_len_tag.parse_array(arr)
+        assert auto_len_tag[0x01] == 0x01
+        assert auto_len_tag[0x02] == 0x02
